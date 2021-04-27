@@ -5,8 +5,7 @@ ARG spark_version=2.4.7
 ARG hive_version=2.1.1
 
 #pre-requisites
-RUN yum install  -y  curl bash java-1.8.0-openjdk-devel openssh-server openssh-clients which wget vim postgresql-jdbc git && \
- curl https://bintray.com/sbt/rpm/rpm |  tee /etc/yum.repos.d/bintray-sbt-rpm.repo && yum install sbt
+RUN yum install  -y  curl bash java-1.8.0-openjdk-devel openssh-server openssh-clients which wget vim postgresql-jdbc git 
 
 ################################################### Hadoop-client installation ###################################################################
 RUN curl https://archive.apache.org/dist/hadoop/core/hadoop-${hadoop_version}/hadoop-${hadoop_version}.tar.gz -o hadoop.tgz && \
