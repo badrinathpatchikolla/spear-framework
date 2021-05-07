@@ -4,9 +4,9 @@ ThisBuild / name := "spear-framework"
 lazy val scala212 = "2.12.12"
 lazy val scala211 = "2.11.12"
 
-val sparkVersion = "2.4.5"
+val sparkVersion = "2.4.7"
 
-ThisBuild / scalaVersion := scala212
+ThisBuild / scalaVersion := scala211
 
 libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
