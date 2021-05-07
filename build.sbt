@@ -1,16 +1,20 @@
-name := "spear-framework"
+ThisBuild / name := "spear-framework"
 
-version := "0.1"
 
-scalaVersion := "2.12.12"
+lazy val scala212 = "2.12.12"
+lazy val scala211 = "2.11.12"
+
+val sparkVersion = "2.4.5"
+
+ThisBuild / scalaVersion := scala212
 
 libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
-  "org.apache.spark" %% "spark-core" % "3.0.0",
-  "org.apache.spark" %% "spark-sql" % "3.0.0",
+  "org.apache.spark" %% "spark-streaming" % sparkVersion,
+  "org.apache.spark" %% "spark-core" % sparkVersion,
+  "org.apache.spark" %% "spark-sql" % sparkVersion,
   "org.postgresql" % "postgresql" % "42.2.5",
   "org.antlr" % "stringtemplate" % "4.0",
   "com.databricks" %% "spark-xml" % "0.11.0",
-  "org.apache.spark" %% "spark-avro" % "2.4.3",
-  "mysql" % "mysql-connector-java" % "8.0.23"
+  "org.apache.spark" %% "spark-avro" % sparkVersion
 )
