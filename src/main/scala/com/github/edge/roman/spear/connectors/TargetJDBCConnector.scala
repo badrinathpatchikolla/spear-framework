@@ -21,12 +21,7 @@ trait TargetJDBCConnector extends Connector {
     logger.info("Data is saved as a temporary table by name: " + alias)
     logger.info("showing saved data from temporary table with name: " + alias)
     this.df.createOrReplaceTempView(alias)
-    df.show(10, false)
     this
-  }
-
-  override def stop(): Unit = {
-    this.sparkSession.stop()
   }
 
   override def toDF: DataFrame = {
@@ -39,6 +34,9 @@ trait TargetJDBCConnector extends Connector {
     this
   }
 
+  override def stop(): Unit = {
+    this.sparkSession.stop()
+  }
   override def targetFS(destinationFilePath: String, saveAsTable: String, saveMode: SaveMode): Unit = ???
 
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit

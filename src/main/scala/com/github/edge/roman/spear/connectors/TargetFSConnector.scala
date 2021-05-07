@@ -26,10 +26,6 @@ trait TargetFSConnector extends Connector {
     this
   }
 
-  override def stop(): Unit = {
-    this.sparkSession.stop()
-  }
-
   override def toDF: DataFrame = {
     logger.info("Data will now be available as dataframe object")
     this.df
@@ -40,7 +36,10 @@ trait TargetFSConnector extends Connector {
     this
   }
 
-
+  override def stop(): Unit = {
+    this.sparkSession.stop()
+  }
+  
   override def targetFS(destinationFilePath: String, saveAsTable: String, saveMode: SaveMode): Unit
 
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = ???
