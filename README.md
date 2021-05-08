@@ -19,10 +19,10 @@ tansformations applied on the raw data,still allowing you to use the features of
         + [Avro to JDBC Connector](#avro-to-jdbc-connector)
         + [Parquet to JDBC Connector](#parquet-to-jdbc-connector)
         + [Oracle to JDBC Connector](#oracle-to-jdbc-connector)
-    * [Target FS (HDFS)](#target-fs)
+    * [Target FS (HDFS)](#target-fs-(hdfs))
         + [Postgres to Hive Connector](#postgres-to-hive-connector)
         + [Oracle to Hive Connector](#oracle-to-hive-connector)
-    * [Target FS (Cloud)](#target-fs-cloud)
+    * [Target FS (Cloud)](#target-fs-(cloud)
         + [JDBC to S3 Connector](#jdbc-to-s3-connector)
 - [Examples](#examples)
 
@@ -1093,7 +1093,7 @@ SELECT
 ```
 
 
-### Target FS (HDFS)
+### Target FS (Cloud)
 
 #### JDBC To S3 Connector
 
