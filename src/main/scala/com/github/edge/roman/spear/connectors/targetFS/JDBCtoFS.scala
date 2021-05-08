@@ -46,9 +46,9 @@ class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnect
     if (destinationFilePath.isEmpty) {
       logger.error("Empty file path specified:" + destinationFilePath)
     } else {
-      logger.info("Writing data to target file: " + destinationFilePath)
+      logger.info("Writing data to target path: " + destinationFilePath)
       this.df.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).save()
-      logger.info("Saving data to file:" + destinationFilePath)
+      logger.info("Saving data to path:" + destinationFilePath)
     }
   }
 }
