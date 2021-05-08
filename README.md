@@ -1187,4 +1187,10 @@ SELECT
 21/05/08 08:46:12 INFO targetFS.JDBCtoFS: Writing data to target path: s3a://destination/data
 21/05/08 08:47:06 INFO targetFS.JDBCtoFS: Saving data to path:s3a://destination/data
 
+Data at S3:
+===========
+user@node:~$ aws s3 ls s3://destination/data
+2021-05-08 12:10:09          0 _SUCCESS
+2021-05-08 12:09:59       4224 part-00000-71fad52e-404d-422c-a6af-7889691bc506-c000.snappy.parquet
+
 ```
