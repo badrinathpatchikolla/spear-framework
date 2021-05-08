@@ -2,11 +2,14 @@ package com.github.edge.roman.spear.connectors.targetjdbc
 
 import com.databricks.spark.xml.XmlDataFrameReader
 import com.github.edge.roman.spear.connectors.TargetJDBCConnector
+import org.apache.log4j.Logger
 import org.apache.spark.sql.SaveMode
 
 import java.util.Properties
 
 class FiletoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector {
+
+  val logger: Logger = Logger.getLogger(this.getClass.getName)
 
   override def source(sourcePath: String, params: Map[String, String]): FiletoJDBC = {
     sourceFormat match {
@@ -63,4 +66,5 @@ class FiletoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCCon
     logger.info("Showing data in target table  : " + tableName)
     sparkSession.read.jdbc(props.get("url").toString, tableName, props).show(10, false)
   }
+
 }

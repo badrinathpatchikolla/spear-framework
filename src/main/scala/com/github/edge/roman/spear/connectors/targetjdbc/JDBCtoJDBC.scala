@@ -1,10 +1,12 @@
 package com.github.edge.roman.spear.connectors.targetjdbc
 import com.github.edge.roman.spear.connectors.TargetJDBCConnector
 import org.apache.spark.sql.SaveMode
-
+import org.apache.log4j.Logger
 import java.util.Properties
 
 class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector {
+
+  val logger = Logger.getLogger(this.getClass.getName)
   override def source(tableName: String, params: Map[String, String]): JDBCtoJDBC = {
     val df = this.sparkSession.read.format(sourceFormat).option("dbtable", tableName).options(params).load()
     this.df = df

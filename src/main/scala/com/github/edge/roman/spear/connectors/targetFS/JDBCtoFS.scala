@@ -1,9 +1,11 @@
 package com.github.edge.roman.spear.connectors.targetFS
 
 import com.github.edge.roman.spear.connectors.TargetFSConnector
+import org.apache.log4j.Logger
 import org.apache.spark.sql.SaveMode
 
 class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnector {
+  val logger: Logger = Logger.getLogger(this.getClass.getName)
 
   override def source(tableName: String, params: Map[String, String]): JDBCtoFS = {
     logger.info("Reading source data from table :" + tableName)

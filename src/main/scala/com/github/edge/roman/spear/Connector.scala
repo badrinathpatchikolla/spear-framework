@@ -1,30 +1,42 @@
 package com.github.edge.roman.spear
 
-import org.apache.spark.sql.{DataFrame, SaveMode}
-
+import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 import java.util.Properties
 
 trait Connector {
+  var sparkSession: SparkSession = null
+  var df: DataFrame = null
 
-  def init(master: String, appName: String):Connector
+  def init(appName: String): Connector = {
+    sparkSession = SparkSession.builder().appName(appName).getOrCreate()
+    this
+  }
 
-  def source(sourceObject:String,params: Map[String, String]=Map()):Connector
+  def saveAs(alias: String): Connector = {
+    this.df.createOrReplaceTempView(alias)
+    df.show(10, false)
+    this
+  }
 
-  def sourceSql(params: Map[String, String],sqlText:String):Connector
+  def toDF: DataFrame=this.df
 
-  def transformSql(sqlText: String):Connector
+  def cacheData(): Connector= {
+    this.df.cache()
+    this
+  }
 
-  def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit
+  def stop(): Unit = this.sparkSession.stop()
+
+  def source(sourceObject: String, params: Map[String, String] = Map()): Connector
+
+  def sourceSql(params: Map[String, String], sqlText: String): Connector
+
+  def transformSql(sqlText: String): Connector
 
   def targetFS(destinationFilePath: String, saveAsTable: String, saveMode: SaveMode): Unit
 
   def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit
 
-  def saveAs(alias: String): Connector
+  def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit
 
-  def toDF: DataFrame
-
-  def cacheData(): Connector
-
-  def stop()
 }
