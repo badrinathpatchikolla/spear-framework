@@ -41,5 +41,15 @@ class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnect
     val targetDF = sparkSession.sql("select * from " + tableName)
     targetDF.show(10, false)
   }
+
+  override def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit = {
+    if (destinationFilePath.isEmpty) {
+      logger.error("Empty file path specified:" + destinationFilePath)
+    } else {
+      logger.info("Writing data to target file: " + destinationFilePath)
+      this.df.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).save()
+      logger.info("Saving data to file:" + destinationFilePath)
+    }
+  }
 }
 

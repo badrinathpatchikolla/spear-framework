@@ -13,4 +13,5 @@ class FiletoFS(sourceType: String,destFormat:String) extends TargetFSConnector {
 
   override def targetFS(target: String, objectName: String, saveMode: SaveMode): Unit = ???
 
+  override def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit = ???
 }

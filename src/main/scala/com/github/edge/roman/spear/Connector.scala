@@ -18,6 +18,8 @@ trait Connector {
 
   def targetFS(destinationFilePath: String, saveAsTable: String, saveMode: SaveMode): Unit
 
+  def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit
+
   def saveAs(alias: String): Connector
 
   def toDF: DataFrame
