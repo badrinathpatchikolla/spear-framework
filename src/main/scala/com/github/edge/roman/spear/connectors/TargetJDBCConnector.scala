@@ -37,6 +37,8 @@ trait TargetJDBCConnector extends Connector {
   override def stop(): Unit = {
     this.sparkSession.stop()
   }
+  def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit = ???
+
   override def targetFS(destinationFilePath: String, saveAsTable: String, saveMode: SaveMode): Unit = ???
 
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit
