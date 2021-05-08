@@ -1,13 +1,13 @@
 version: '3'
 services:
-  postgres-metatsore:
+  hive-metastore:
     image: "hive-metastore:latest"
     restart: always
     container_name: "hive_metastore"
     hostname: "metastore.hive"
     environment:
       - POSTGRES_PASSWORD=hive
-  spark:
+  spear-container:
     image: "spark-standalone-hadoop:latest"
     hostname: "hadoop.spark"
     container_name: "spark"
@@ -20,8 +20,8 @@ services:
     expose:
       - "22"
     depends_on:
-      - postgres-metatsore
-    privileged: "true"
+      - hive-metastore
+    privileged: true
     command: "/usr/sbin/init"
-                
-                
+
+
