@@ -9,6 +9,7 @@ tansformations applied on the raw data,still allowing you to use the features of
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Pre-Requisites](#pre-requisites)
 - [How to Run](#how-to-run)
 - [Connectors](#connectors)
     * [Target JDBC](#target-jdbc)
@@ -26,10 +27,42 @@ tansformations applied on the raw data,still allowing you to use the features of
         + [JDBC to S3 Connector](#jdbc-to-s3-connector)
 - [Examples](#examples)
 
-## Introductionl
+## Introduction
 
-Spear Framework is basically used to write connectors from source to target,applying business logic/transformations over
-the soure data and loading it to the corresponding destination
+Spear Framework is basically used to write connectors (ETL jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination.
+
+## Pre-Requisites
+
+Following are the pre-requisite tools to be installed on the machine:
+
+1. Need to have a linux machine with 16GB Ram and 4 CPU's for better performance
+
+2. Install docker and docker-compose using the below steps
+```commandline
+#install docker
+================
+sudo yum remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-engine
+sudo yum install -y yum-utils
+sudo yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
+
+sudo yum install docker-ce docker-ce-cli containerd.io
+sudo systemctl start docker
+
+#install docker-compose
+=======================
+sudo curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
 
 ## How to Run
 
@@ -47,7 +80,7 @@ git clone https://github.com/AnudeepKonaboina/spear-framework.git
 sh setup.sh
 ```
 
-3.After 2 min you will get a prompt with the scala shell loaded will all the dependencies where you can write your own
+3.After 5 min you will get a prompt with the scala shell loaded will all the dependencies where you can write your own
 connector and test it.
 
 ```commandline
@@ -70,29 +103,35 @@ scala>
 For docker conatiners run the below commands one after the other:
 
 ```
-docker exec -it spark bash -to enter into the container
+1.Enter into the container using the command
+docker exec -it spark bash 
 
-cd /opt/spear-framework/target/scala-2.12 -path where the binary exists
+2.Navigate to the path where the binary exists
+cd /opt/spear-framework/target/scala-2.12 
 
-spark-shell --jars spear-framework_2.12-0.1.jar --packages "org.postgresql:postgresql:9.4.1211,org.apache.spark:spark-hive_2.11:2.4.0" -opens a spark shell on top of spear
+3.Execute the spark shell command as below
+
+spark-shell --jars spear-framework_2.11-0.1.0-SNAPSHOT.jar,ojdbc6.jar --packages org.postgresql:postgresql:9.4.1211,org.apache.hadoop:hadoop-aws:2.10.1,org.apache.spark:spark-hive_2.11:2.4.7,org.apache.spark:spark-avro_2.11:2.4.7,org.apache.hadoop:hadoop-azure:2.10.1,org.apache.hadoop:hadoop-azure-datalake:2.10.1,com.google.cloud.spark:spark-bigquery-with-dependencies_2.11:0.18.1
 ```
 
 NOTE: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source
 and write it to HDFS.
 
-To run on any on any terminal or linux machine
+
+5. To run on any on any terminal or linux machine
 
 ```
-clone the project using git clone https://github.com/AnudeepKonaboina/spear-framework.git
+1. clone the project using git clone https://github.com/AnudeepKonaboina/spear-framework.git
 
-Run cd spear-framework/ and then run sbt pcakage 
+2. Run cd spear-framework/ and then run sbt pcakage 
 
-Once the jar is created in the target dir ,navigate to the target dir and run the following command:
+3. Once the jar is created in the target dir ,navigate to the target dir and run the following command:
 spark-shell --jars spear-framework_2.12-0.1.jar --packages "org.postgresql:postgresql:9.4.1211,org.apache.spark:spark-hive_2.11:2.4.0"
 
 ```
 
-5. You can write your own connector (look at some examples below ) and test it.
+6. You can write your own connector (look at some examples below ) and test it.
+
 
 ## Connectors
 
@@ -1033,7 +1072,7 @@ val oraToHiveConnector = SpearConnector.init
 
 
 oraToHiveConnector
-  .sourceSql(Map("driver" -> "oracle.jdbc.driver.OracleDriver", "user" -> "user", "password" -> "pass", "url" -> "jdbc:oracle:thin:@ora-host:1521:orcl"),
+.sourceSql(Map("driver" -> "oracle.jdbc.driver.OracleDriver", "user" -> "user", "password" -> "pass", "url" -> "jdbc:oracle:thin:@ora-host:1521:orcl"),
   """
     |SELECT
     |        to_char(sys_extract_utc(systimestamp), 'YYYY-MM-DD HH24:MI:SS.FF') as ingest_ts_utc,
@@ -1069,6 +1108,8 @@ oraToHiveConnector
       |        from __TF_SOURCE_TABLE__
       |""".stripMargin)
   .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.ora_data", SaveMode.Overwrite)
+oraToHiveConnector.stop()
+
 ```
 
 ### Output
