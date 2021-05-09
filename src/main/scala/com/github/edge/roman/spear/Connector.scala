@@ -8,7 +8,7 @@ trait Connector {
   var df: DataFrame = null
 
   def init(appName: String): Connector = {
-    sparkSession = SparkSession.builder().appName(appName).getOrCreate()
+    sparkSession = SparkSession.builder().appName(appName).enableHiveSupport().getOrCreate()
     this
   }
 
