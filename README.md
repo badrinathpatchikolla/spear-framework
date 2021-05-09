@@ -123,8 +123,13 @@ properties.put("password", "mysecretpassword")
 properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
 
 //connector logic
-val csvJdbcConnector = new SpearConnector().source(sourceType = "file", sourceFormat = "csv").target(targetType = "relational", targetFormat = "jdbc").getConnector
-csvJdbcConnector.init(master = "local[*]", appName = "CSVtoJdbcConnector")
+val csvJdbcConnector =SpearConnector.init
+  .source(sourceType = "file", sourceFormat = "csv")
+  .target(targetType = "relational", targetFormat = "jdbc")
+  .withName(connectorName = "CSVtoJdbcConnector")
+  .getConnector
+
+csvJdbcConnector
   .source(sourceObject = "/user/hive/warehouse/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
   .saveAs("__tmp__")
   .transformSql("select state_code,party,first_name,last_name,votes from __tmp__")
@@ -264,8 +269,13 @@ properties.put("user", "postgres_user")
 properties.put("password", "mysecretpassword")
 properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
 
-val jsonJdbcConnector = new SpearConnector().source(sourceType = "file", sourceFormat = "json").target(targetType = "relational", targetFormat = "jdbc").getConnector
-jsonJdbcConnector.init(master = "local[*]", appName = "JSONtoJDBC")
+val jsonJdbcConnector = SpearConnector.init
+  .source(sourceType = "file", sourceFormat = "json")
+  .target(targetType = "relational", "jdbc")
+  .withName(connectorName = "JSONtoJDBC")
+  .getConnector
+
+jsonJdbcConnector
   .source("data/data.json", Map("multiline" -> "true"))
   .saveAs("__tmptable__")
   .transformSql("select cast(id*10 as integer) as type_id,type from __tmptable__ ")
@@ -348,8 +358,12 @@ properties.put("user", "postgres_user")
 properties.put("password", "mysecretpassword")
 properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
 
-val xmlJdbcConnector = new SpearConnector().source(sourceType = "file", sourceFormat = "xml").target(targetType = "relational", targetFormat = "jdbc").getConnector
-xmlJdbcConnector.init(master = "local[*]", appName = "XMLtoJDBC")
+val xmlJdbcConnector = SpearConnector.init
+  .source(sourceType = "file", sourceFormat = "xml")
+  .target(targetType = "relational", targetFormat = "jdbc")
+  .withName(connectorName = "XMLtoJDBC")
+  .getConnector
+xmlJdbcConnector
   .source("data/data.xml", Map("rootTag" -> "employees", "rowTag" -> "details"))
   .saveAs("tmp")
   .transformSql("select * from tmp ")
@@ -419,8 +433,12 @@ properties.put("user", "postgres_user")
 properties.put("password", "mysecretpassword")
 properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
 
-val connector = new SpearConnector().source(sourceType = "file", sourceFormat = "tsv").target(targetType = "relational", targetFormat = "jdbc").getConnector
-connector.init(master = "local[*]", appName = "TSVtoJDBC")
+val connector = SpearConnector.init
+  .source(sourceType = "file", sourceFormat = "tsv")
+  .target(targetType = "relational", targetFormat = "jdbc")
+  .withName(connectorName = "TSVtoJDBC")
+  .getConnector
+connector
   .source("data/product_data", Map("sep" -> "\t", "header" -> "true", "inferSchema" -> "true"))
   .saveAs("tmp")
   .transformSql("select * from tmp ")
@@ -519,8 +537,13 @@ properties.put("user", "postgres")
 properties.put("password", "pass")
 properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
 
-val avroJdbcConnector = new SpearConnector().source(sourceType="file", sourceFormat="avro").target(targetType="relational", targetFormat="jdbc").getConnector
-avroJdbcConnector.init(master = "local[*]", appName = "AvrotoJdbcConnector")
+val avroJdbcConnector = SpearConnector.init
+  .source(sourceType="file", sourceFormat="avro")
+  .target(targetType="relational", targetFormat="jdbc")
+  .withName(connectorName ="AvrotoJdbcConnector" )
+  .getConnector
+
+avroJdbcConnector
   .source(sourceObject = "/user/hive/warehouse/sample_data.avro")
   .saveAs("__tmp__")
   .transformSql(
@@ -668,12 +691,18 @@ properties.put("user", "postgres")
 properties.put("password", "pass")
 properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
 
-val parquetJdbcConnector = new SpearConnector().source(sourceType="file", sourceFormat="parquet").target(targetType="relational", targetFormat="jdbc").getConnector
-parquetJdbcConnector.init(master="local[*]",appName= "CSVtoJdbcConnector")
+val parquetJdbcConnector = SpearConnector.init
+  .source(sourceType="file", sourceFormat="parquet")
+  .target(targetType="relational", targetFormat="jdbc")
+  .withName(connectorName ="CSVtoJdbcConnector" )
+  .getConnector
+
+parquetJdbcConnector
   .source("data/sample.parquet")
   .saveAs("__tmp__")
   .transformSql("""select flow1,occupancy1,speed1 from __tmp__""")
   .targetJDBC(tableName="pg_db.user_data", properties, SaveMode.Overwrite)
+
 parquetJdbcConnector.stop()
 ```
 
@@ -767,8 +796,13 @@ properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
 
 Logger.getLogger("com.github").setLevel(Level.INFO)
 
-val oracleTOPostgresConnector = new SpearConnector().source(sourceType = "relational", sourceFormat = "jdbc").target(targetType = "relational", targetFormat = "jdbc").getConnector
-oracleTOPostgresConnector.init(master = "local[*]", appName = "OracleTOPostgresConnector")
+val oracleTOPostgresConnector = SpearConnector.init
+  .source(sourceType = "relational", sourceFormat = "jdbc")
+  .target(targetType = "relational", targetFormat = "jdbc")
+  .withName(connectorName = "OracleTOPostgresConnector")
+  .getConnector
+
+oracleTOPostgresConnector
   .sourceSql(Map("driver" -> "oracle.jdbc.driver.OracleDriver", "user" -> "user", "password" -> "pass", "url" -> "jdbc:oracle:thin:@ora-host:1521:orcl"),
     """
       |SELECT
@@ -872,8 +906,12 @@ import java.util.Properties
 
 Logger.getLogger("com.github").setLevel(Level.INFO)
 
-val postgresToHiveConnector = new SpearConnector().source(sourceType = "relational", sourceFormat = "jdbc").target(targetType = "FS", targetFormat = "parquet").getConnector
-postgresToHiveConnector.init("local[*]", "JdbctoHiveConnector")
+val postgresToHiveConnector = SpearConnector.init
+  .source(sourceType = "relational", sourceFormat = "jdbc")
+  .target(targetType = "FS", targetFormat = "parquet")
+  .getConnector
+
+postgresToHiveConnector
   .source("source_db.instance", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres", "password" -> "test", "url" -> "jdbc:postgresql://postgres-host:5433/source_db"))
   .saveAs("__tmp__")
   .transformSql(
@@ -988,9 +1026,14 @@ import org.apache.spark.sql.SaveMode
 
 Logger.getLogger("com.github").setLevel(Level.INFO)
 
-val oraToHiveConnector = new SpearConnector().source(sourceType = "relational", sourceFormat = "jdbc").target(targetType = "FS", targetFormat = "parquet").getConnector
-oraToHiveConnector.init(master = "local[*]", appName = "OracleToHiveConnector")
-oraToHiveConnector.sourceSql(Map("driver" -> "oracle.jdbc.driver.OracleDriver", "user" -> "user", "password" -> "pass", "url" -> "jdbc:oracle:thin:@ora-host:1521:orcl"),
+val oraToHiveConnector = SpearConnector.init
+  .source(sourceType = "relational", sourceFormat = "jdbc")
+  .target(targetType = "FS", targetFormat = "parquet")
+  .getConnector
+
+
+oraToHiveConnector
+  .sourceSql(Map("driver" -> "oracle.jdbc.driver.OracleDriver", "user" -> "user", "password" -> "pass", "url" -> "jdbc:oracle:thin:@ora-host:1521:orcl"),
   """
     |SELECT
     |        to_char(sys_extract_utc(systimestamp), 'YYYY-MM-DD HH24:MI:SS.FF') as ingest_ts_utc,
@@ -1108,8 +1151,12 @@ spark.sparkContext.hadoopConfiguration.set("fs.s3a.access.key", "*****")
 spark.sparkContext.hadoopConfiguration.set("fs.s3a.secret.key", "*****")
 
 
-val oracleTOS3Connector = new SpearConnector().source(sourceType = "relational", sourceFormat = "jdbc").target(targetType = "FS", targetFormat = "parquet").getConnector
-oracleTOS3Connector.init(master = "local[*]", appName = "OracleToS3Connector")
+val oracleTOS3Connector = SpearConnector.init
+  .source(sourceType = "relational", sourceFormat = "jdbc")
+  .target(targetType = "FS", targetFormat = "parquet")
+  .withName(connectorName ="OracleToS3Connector" )
+  .getConnector
+oracleTOS3Connector
   .sourceSql(Map("driver" -> "oracle.jdbc.driver.OracleDriver", "user" -> "user", "password" -> "pass", "url" -> "jdbc:oracle:thin:@ora-host:1521:orcl"),
     """
       |SELECT
