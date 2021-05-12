@@ -1,5 +1,14 @@
 version: '3'
 services:
+  postgres-db:
+    image: postgres
+    ports:
+      - "5433:5432"
+    container_name: "postgres-test"
+    environment:
+      - POSTGRES_DB=pgdb
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_USER=postgres_user
   hive-metastore:
     image: "hive-metastore:latest"
     restart: always
