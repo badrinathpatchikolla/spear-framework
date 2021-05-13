@@ -4,7 +4,7 @@
   <property>
     <name>javax.jdo.option.ConnectionURL</name>
     <value>jdbc:postgresql://hive_metastore:5432/metastore</value>
-    <description>JDBC connect string for a JDBC metastore</description>
+    <description>JDBC connect string for a JDBC hive metastore</description>
   </property>
   <property>
     <name>javax.jdo.option.ConnectionDriverName</name>
