@@ -1,70 +1,60 @@
 package com.github.edge.roman.spear.connectors.targetjdbc
 
 import com.databricks.spark.xml.XmlDataFrameReader
+import com.github.edge.roman.spear.{Connector, SpearConnector}
 import com.github.edge.roman.spear.connectors.TargetJDBCConnector
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.log4j.Logger
 import org.apache.spark.sql.SaveMode
+import org.apache.spark.sql.types.StructType
 
 import java.util.Properties
 
-class FiletoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector {
+class FiletoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector with LazyLogging {
 
-  val logger: Logger = Logger.getLogger(this.getClass.getName)
+
+  override def source(sourcePath: String, params: Map[String, String], schema: StructType): FiletoJDBC = {
+    val paramsWithSchema = params+("customSchema" -> schema.toString())
+    source(sourcePath,paramsWithSchema)
+  }
 
   override def source(sourcePath: String, params: Map[String, String]): FiletoJDBC = {
     sourceFormat match {
       case "csv" =>
-        val df = this.sparkSession.read.options(params).csv(sourcePath)
+        val df = SpearConnector.spark.read.options(params).csv(sourcePath)
         this.df = df
-        logger.info("Data after reading from csv in path : " + sourcePath)
-        df.show(10, false)
       case "avro" =>
-        val df = this.sparkSession.read.format("avro").options(params).load(sourcePath)
+        val df = SpearConnector.spark.read.format("avro").options(params).load(sourcePath)
         this.df = df
-        logger.info("Data after reading from avro file in path : " + sourcePath)
-        df.show(10, false)
       case "parquet" =>
-        val df = this.sparkSession.read.format("parquet").options(params).load(sourcePath)
+        val df = SpearConnector.spark.read.format("parquet").options(params).load(sourcePath)
         this.df = df
-        logger.info("Data after reading from parquet file in path : " + sourcePath)
-        df.show(10, false)
       case "json" =>
-        val df = this.sparkSession.read.options(params).json(sourcePath)
+        val df = SpearConnector.spark.read.options(params).json(sourcePath)
         this.df = df
-        logger.info("Data after reading from json file in path : " + sourcePath)
-        df.show(10, false)
       case "tsv" =>
-        val df = this.sparkSession.read.options(params).csv(sourcePath)
+        val df = SpearConnector.spark.read.options(params).csv(sourcePath)
         this.df = df
-        logger.info("Data after reading from tsv file in path : " + sourcePath)
-        df.show(10, false)
       case "xml" =>
-        val df = this.sparkSession.read.format("com.databricks.spark.xml").options(params).xml(sourcePath)
+        val df = SpearConnector.spark.read.format("com.databricks.spark.xml").options(params).xml(sourcePath)
         this.df = df
-        logger.info("Data after reading from xml file in path : " + sourcePath)
-        df.show(10, false)
       case _ =>
-        throw new Exception("Invalid source type provided.")
+        throw new Exception("Invalid source format provided.")
     }
     this
   }
 
   override def transformSql(sqlText: String): FiletoJDBC = {
-    logger.info("Data after transformation using the SQL : " + sqlText)
     this.df = this.df.sqlContext.sql(sqlText)
-    this.df.show(10, false)
     this
   }
 
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
-    logger.info("Writing data to target table: " + tableName)
     this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
     showTargetData(tableName: String, props: Properties)
   }
 
   def showTargetData(tableName: String, props: Properties): Unit = {
-    logger.info("Showing data in target table  : " + tableName)
-    sparkSession.read.jdbc(props.get("url").toString, tableName, props).show(10, false)
+    SpearConnector.spark.read.jdbc(props.get("url").toString, tableName, props).show(10, false)
   }
-
 }

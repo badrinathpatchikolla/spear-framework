@@ -1,5 +1,5 @@
 test(data)::=<<
-$data:test1()$
+$data:{key|$key$ maps to $data.(key)$};separator=","$
 >>
 
 test1(data)::=<<

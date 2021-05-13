@@ -1,33 +1,31 @@
 package com.github.edge.roman.spear
 
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
+
 import java.util.Properties
 
 trait Connector {
-  var sparkSession: SparkSession = null
-  var df: DataFrame = null
 
-  def init(appName: String): Connector = {
-    sparkSession = SparkSession.builder().appName(appName).enableHiveSupport().getOrCreate()
-    this
-  }
+  var df: DataFrame = null
 
   def saveAs(alias: String): Connector = {
     this.df.createOrReplaceTempView(alias)
-    df.show(10, false)
     this
   }
 
-  def toDF: DataFrame=this.df
-
-  def cacheData(): Connector= {
+  def cacheData(): Connector = {
     this.df.cache()
     this
   }
 
-  def stop(): Unit = this.sparkSession.stop()
+  def toDF: DataFrame = this.df
+
+  def stop(): Unit = SpearConnector.spark.stop()
 
   def source(sourceObject: String, params: Map[String, String] = Map()): Connector
+
+  def source(sourceObject: String, params: Map[String, String],schema:StructType):Connector
 
   def sourceSql(params: Map[String, String], sqlText: String): Connector
 

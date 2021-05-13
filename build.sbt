@@ -12,9 +12,13 @@ libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "org.apache.spark" %% "spark-streaming" % sparkVersion,
   "org.apache.spark" %% "spark-core" % sparkVersion,
+  "org.apache.spark" %% "spark-sql-kafka-0-10" % "2.4.7" ,
+
+
   "org.apache.spark" %% "spark-sql" % sparkVersion,
   "org.postgresql" % "postgresql" % "42.2.5",
   "org.antlr" % "stringtemplate" % "4.0",
   "com.databricks" %% "spark-xml" % "0.11.0",
-  "org.apache.spark" %% "spark-avro" % sparkVersion
+  "org.apache.spark" %% "spark-avro" % sparkVersion,
+  "org.scalatest" %% "scalatest" % "3.0.8" % Test
 )
