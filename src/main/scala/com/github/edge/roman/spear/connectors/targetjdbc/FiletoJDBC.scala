@@ -12,7 +12,6 @@ import java.util.Properties
 
 class FiletoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector with LazyLogging {
 
-
   override def source(sourcePath: String, params: Map[String, String], schema: StructType): FiletoJDBC = {
     val paramsWithSchema = params+("customSchema" -> schema.toString())
     source(sourcePath,paramsWithSchema)

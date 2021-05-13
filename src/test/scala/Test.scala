@@ -28,7 +28,7 @@ class Test extends FunSuite with BeforeAndAfter {
     .saveAs("__tmp__")
     .targetJDBC(tableName = "test_table", properties, SaveMode.Overwrite)
 
-  runTests(fileDF("data/us-election-2012-results-by-county.csv"), tableDf("test_table", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres-test:5432/pgdb")), "csvtopostgrestest")
+  runTests(fileDF("data/us-election-2012-results-by-county.csv"), tableDf("test_table", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres-test:5432/pgdb")), "csvtopostgresconnector")
 
   after {
     SpearConnector.spark.stop()
@@ -60,10 +60,10 @@ class Test extends FunSuite with BeforeAndAfter {
     val count1 = df1.count()
     val count2 = df2.count()
     val count3 = SpearConnector.spark.emptyDataFrame.count()
-    test(s"Source destination counts test:$name should match") {
+    test(s"Source destination counts test:$name") {
       assert(count1 == count2)
     }
-    test(s"Count Test:$name should not match") {
+    test(s"Source dest count mismatch test:$name ") {
       assert(count1 != count3)
     }
   }
