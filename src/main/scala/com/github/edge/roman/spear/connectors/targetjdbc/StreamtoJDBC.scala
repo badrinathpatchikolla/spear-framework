@@ -11,27 +11,18 @@ import java.util.Properties
 class StreamtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector {
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
     sourceFormat match {
-      case "kafka" => {
+      case "kafka" =>
         val _df = SpearConnector.spark
           .readStream
           .format(sourceFormat)
+          .option("subscribe", sourceObject)
           .options(params)
           .load()
           .selectExpr("CAST(value AS STRING)").as[String]
-          .select(from_json($"value", schema).as("data"), $"timestamp")
+          .select(from_json($"value", schema).as("data"))
           .select("data.*")
         this.df = _df
-      }
-      case "jdbc" => {
-        val _df = SpearConnector.spark
-          .readStream
-          .format(sourceFormat)
-          .schema(schema)
-          .options(params)
-          .load()
-        this.df = _df
-      }
-      case _ => {
+      case _ =>
         val _df = SpearConnector.spark
           .readStream
           .format(sourceFormat)
@@ -39,7 +30,6 @@ class StreamtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCC
           .options(params)
           .load(sourceObject + "/*." + sourceFormat)
         this.df = _df
-      }
     }
     this
   }

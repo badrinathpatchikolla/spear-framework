@@ -16,10 +16,11 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends TargetFSConne
         val _df = SpearConnector.spark
           .readStream
           .format(sourceFormat)
+          .option("subscribe", sourceObject)
           .options(params)
           .load()
           .selectExpr("CAST(value AS STRING)").as[String]
-          .select(from_json($"value", schema).as("data"), $"timestamp")
+          .select(from_json($"value", schema).as("data"))
           .select("data.*")
         this.df = _df
       }
@@ -29,7 +30,7 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends TargetFSConne
           .format(sourceFormat)
           .schema(schema)
           .options(params)
-          .load(sourceObject + "/.*" + sourceFormat)
+          .load(sourceObject + "/*." + sourceFormat)
         this.df = _df
       }
     }
