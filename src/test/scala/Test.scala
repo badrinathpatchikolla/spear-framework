@@ -30,13 +30,17 @@ class Test extends FunSuite with BeforeAndAfter {
 
   runTests(fileDF("data/us-election-2012-results-by-county.csv"), tableDf("test_table", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres-test:5432/pgdb")), "csvtopostgresconnector")
 
+
+
+
+
   after {
     SpearConnector.spark.stop()
   }
 
 
   def fileDF(fileName: String): DataFrame = {
-    SpearConnector.spark.read.options(Map("header" -> "true", "inferSchema" -> "true")).csv(fileName)
+      SpearConnector.spark.read.options(Map("header" -> "true", "inferSchema" -> "true")).csv(fileName)
   }
 
   def tableDf(tableName: String, params: Map[String, String]): DataFrame = {

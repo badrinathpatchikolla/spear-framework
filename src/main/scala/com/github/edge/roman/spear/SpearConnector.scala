@@ -1,8 +1,8 @@
 package com.github.edge.roman.spear
 
 
-import com.github.edge.roman.spear.connectors.targetFS.{FiletoFS, JDBCtoFS}
-import com.github.edge.roman.spear.connectors.targetjdbc.{FiletoJDBC, JDBCtoJDBC}
+import com.github.edge.roman.spear.connectors.targetFS.{FiletoFS, JDBCtoFS, StreamtoFS}
+import com.github.edge.roman.spear.connectors.targetjdbc.{FiletoJDBC, JDBCtoJDBC, StreamtoJDBC}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
@@ -41,8 +41,8 @@ object SpearConnector {
         case ("relational", "relational") => new JDBCtoJDBC(sourceFormat, destFormat)
         case ("file", "FS") => new FiletoFS(sourceFormat, destFormat)
         case ("relational", "FS") => new JDBCtoFS(sourceFormat, destFormat)
-        case ("stream", "relational") => new JDBCtoFS(sourceFormat, destFormat)
-        case ("stream", "FS") => new JDBCtoFS(sourceFormat, destFormat)
+        case ("stream", "relational") => new StreamtoJDBC(sourceFormat, destFormat)
+        case ("stream", "FS") => new StreamtoFS(sourceFormat, destFormat)
         case (_, _) => throw new Exception()
       }
     }

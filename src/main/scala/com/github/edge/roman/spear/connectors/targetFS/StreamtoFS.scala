@@ -11,15 +11,28 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends TargetFSConne
   import SpearConnector.spark.implicits._
 
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
-    val _df = SpearConnector.spark
-      .readStream
-      .format(sourceFormat)
-      .options(params)
-      .load()
-      .selectExpr("CAST(value AS STRING)").as[String]
-      .select(from_json($"value", schema).as("data"), $"timestamp")
-      .select("data.*")
-    this.df = _df
+    sourceFormat match {
+      case "kafka" => {
+        val _df = SpearConnector.spark
+          .readStream
+          .format(sourceFormat)
+          .options(params)
+          .load()
+          .selectExpr("CAST(value AS STRING)").as[String]
+          .select(from_json($"value", schema).as("data"), $"timestamp")
+          .select("data.*")
+        this.df = _df
+      }
+      case _ => {
+        val _df = SpearConnector.spark
+          .readStream
+          .format(sourceFormat)
+          .schema(schema)
+          .options(params)
+          .load(sourceObject + "/.*" + sourceFormat)
+        this.df = _df
+      }
+    }
     this
   }
 

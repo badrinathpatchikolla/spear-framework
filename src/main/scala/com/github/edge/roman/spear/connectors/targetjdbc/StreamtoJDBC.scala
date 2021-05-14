@@ -4,22 +4,34 @@ import com.github.edge.roman.spear.{Connector, SpearConnector}
 import com.github.edge.roman.spear.connectors.TargetJDBCConnector
 import org.apache.spark.sql.functions.from_json
 import org.apache.spark.sql.{DataFrame, SaveMode}
-import SpearConnector.spark.implicits._
 import org.apache.spark.sql.types.StructType
-
+import SpearConnector.spark.implicits._
 import java.util.Properties
 
 class StreamtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector {
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
-    val _df = SpearConnector.spark
-      .readStream
-      .format(sourceFormat)
-      .options(params)
-      .load()
-      .selectExpr("CAST(value AS STRING)").as[String]
-      .select(from_json($"value", schema).as("data"), $"timestamp")
-      .select("data.*")
-    this.df = _df
+    sourceFormat match {
+      case "kafka" => {
+        val _df = SpearConnector.spark
+          .readStream
+          .format(sourceFormat)
+          .options(params)
+          .load()
+          .selectExpr("CAST(value AS STRING)").as[String]
+          .select(from_json($"value", schema).as("data"), $"timestamp")
+          .select("data.*")
+        this.df = _df
+      }
+      case _ => {
+        val _df = SpearConnector.spark
+          .readStream
+          .format(sourceFormat)
+          .schema(schema)
+          .options(params)
+          .load(sourceObject + "/.*" + sourceFormat)
+        this.df = _df
+      }
+    }
     this
   }
 
@@ -28,7 +40,7 @@ class StreamtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCC
       .readStream
       .format(sourceFormat)
       .options(params)
-      .load()
+      .load(sourceObject)
     this.df = _df
     this
   }
