@@ -31,5 +31,6 @@ sleep 60
 echo "Starting services and starting spear-shell"
 docker exec -it spark bash -c "hdfs namenode -format && start-dfs.sh && hdfs dfs -mkdir -p /tmp && hdfs dfs -mkdir -p /user/hive/warehouse && hdfs dfs -chmod g+w /user/hive/warehouse" &&
   docker exec -d spark bash -c "hive --service metastore && hive --service hiveserver2" &&
+  deockr exec -it spark bash -c "wget https://mirrors.estointernet.in/apache/kafka/2.7.0/kafka_2.13-2.7.0.tgz -O /tmp/kafka.tgz && cd / && tar -xvf /tmp/kafka.tgz -C / && mv kafka_2.13-2.7.0 kafka"
   docker exec -it spark bash -c "rm -f /etc/yum.repos.d/bintray-rpm.repo &&  curl -L https://www.scala-sbt.org/sbt-rpm.repo > sbt-rpm.repo && mv sbt-rpm.repo /etc/yum.repos.d/ && yum install -y sbt && cd /opt && git clone -b feature/dev https://github.com/AnudeepKonaboina/spear-framework.git && cd spear-framework && sbt test && sbt package" &&
   docker exec -it spark bash -c "cd /opt/spear-framework/target/scala-* && spark-shell --jars *.jar --packages  org.postgresql:postgresql:9.4.1211,org.apache.hadoop:hadoop-aws:2.10.1,org.apache.spark:spark-hive_2.11:2.4.7,org.apache.spark:spark-avro_2.11:2.4.7,org.apache.hadoop:hadoop-azure:2.10.1,org.apache.hadoop:hadoop-azure-datalake:2.10.1,com.google.cloud.spark:spark-bigquery-with-dependencies_2.11:0.18.1"

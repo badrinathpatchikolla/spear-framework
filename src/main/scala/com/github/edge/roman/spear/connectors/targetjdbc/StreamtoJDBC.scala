@@ -22,13 +22,22 @@ class StreamtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCC
           .select("data.*")
         this.df = _df
       }
+      case "jdbc" => {
+        val _df = SpearConnector.spark
+          .readStream
+          .format(sourceFormat)
+          .schema(schema)
+          .options(params)
+          .load()
+        this.df = _df
+      }
       case _ => {
         val _df = SpearConnector.spark
           .readStream
           .format(sourceFormat)
           .schema(schema)
           .options(params)
-          .load(sourceObject + "/.*" + sourceFormat)
+          .load(sourceObject + "/*." + sourceFormat)
         this.df = _df
       }
     }

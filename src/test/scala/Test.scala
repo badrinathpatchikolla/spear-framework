@@ -11,7 +11,7 @@ class Test extends FunSuite with BeforeAndAfter {
   properties.put("driver", "org.postgresql.Driver");
   properties.put("user", "postgres_user")
   properties.put("password", "mysecretpassword")
-  properties.put("url", "jdbc:postgresql://postgres-test:5432/pgdb")
+  properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
 
   SpearConnector.sparkConf.setMaster("local[*]")
   SpearConnector.spark.sparkContext.setLogLevel("ERROR")
@@ -28,7 +28,7 @@ class Test extends FunSuite with BeforeAndAfter {
     .saveAs("__tmp__")
     .targetJDBC(tableName = "test_table", properties, SaveMode.Overwrite)
 
-  runTests(fileDF("data/us-election-2012-results-by-county.csv"), tableDf("test_table", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres-test:5432/pgdb")), "csvtopostgresconnector")
+  runTests(fileDF("data/us-election-2012-results-by-county.csv"), tableDf("test_table", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres:5432/pgdb")), "csvtopostgresconnector")
 
 
 
