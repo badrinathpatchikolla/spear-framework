@@ -3,7 +3,7 @@ package com.github.edge.roman.spear.connectors.targetFS
 import com.github.edge.roman.spear.{Connector, SpearConnector}
 import com.github.edge.roman.spear.connectors.TargetFSConnector
 import org.apache.spark.sql.functions.from_json
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
 class StreamtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnector {

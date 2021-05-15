@@ -14,19 +14,26 @@ tansformations applied on the raw data,still allowing you to use the features of
 - [How to Run](#how-to-run)
 - [Connectors](#connectors)
     * [Target JDBC](#target-jdbc)
-        + [CSV to JDBC Connector](#csv-to-jdbc-connector)
-        + [JSON to JDBC Connector](#json-to-jdbc-connector)
-        + [XML to JDBC Connector](#xml-to-jdbc-connector)
-        + [TSV to JDBC Connector](#tsv-to-jdbc-connector)
-        + [Avro to JDBC Connector](#avro-to-jdbc-connector)
-        + [Parquet to JDBC Connector](#parquet-to-jdbc-connector)
-        + [Oracle to JDBC Connector](#oracle-to-jdbc-connector)
+        - [File Source](#file-source)
+            + [CSV to JDBC Connector](#csv-to-jdbc-connector)
+            + [JSON to JDBC Connector](#json-to-jdbc-connector)
+            + [XML to JDBC Connector](#xml-to-jdbc-connector)
+            + [Avro to JDBC Connector](#avro-to-jdbc-connector)
+            + [Parquet to JDBC Connector](#parquet-to-jdbc-connector)
+        - [JDBC Source](#jdbc-source)
+            + [Oracle to JDBC Connector](#oracle-to-jdbc-connector)
+        - [Streaming Source](#streaming-source)
+            + [kafka to JDBC Connector](#kafka-to-jdbc-connector)
     * [Target FS (HDFS)](#target-fs-hdfs)
-        + [Postgres to Hive Connector](#postgres-to-hive-connector)
-        + [Oracle to Hive Connector](#oracle-to-hive-connector)
+        - [JDBC Source](#jdbc-source)
+            + [Postgres to Hive Connector](#postgres-to-hive-connector)
+            + [Oracle to Hive Connector](#oracle-to-hive-connector)
+        - [Streaming Source](#streaming-source)
+            + [kafka to FS Connector](#kafka-to-hive-connector)
     * [Target FS (Cloud)](#target-fs-cloud)
-        + [JDBC to S3 Connector](#jdbc-to-s3-connector)
-- [Examples](#examples)
+        + [Postgres to S3 Connector](#jdbc-to-s3-connector)
+        + [Oracle to GCS Connector](#oracle-to-gcs-connector)
+- [How to write a connector](#how-to-write-a-connector)
 
 ## Introduction
 
@@ -37,11 +44,10 @@ Spear Framework is basically used to write connectors (ETL jobs) from a source t
 Following are the pre-requisite tools to be installed on the machine:
 
 1. Need to have a linux machine with 16GB Ram and 4 CPU's for better performance
-
 2. Install docker and docker-compose using the below steps
 ```commandline
-#install docker
-================
+#install docker centos
+=====================
 sudo yum remove docker \
                   docker-client \
                   docker-client-latest \
@@ -58,6 +64,21 @@ sudo yum-config-manager \
 sudo yum install docker-ce docker-ce-cli containerd.io
 sudo systemctl start docker
 
+#install docker ubuntu
+-=====================
+sudo apt-get remove docker docker-engine docker.io containerd runc
+
+sudo apt-get update
+ sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+    
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+sudo systemctl start docker
+
 #install docker-compose
 =======================
 sudo curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
@@ -70,54 +91,26 @@ sudo chmod +x /usr/local/bin/docker-compose
 Below are the steps to write and run your own connector:
 
 1. Clone the repository from git
-
 ```commandline
 git clone https://github.com/AnudeepKonaboina/spear-framework.git
 ```
 
 2. Run setup.sh script using the command
-
 ```commandline
 sh setup.sh
 ```
 
-3.After 5 min you will get a prompt with the scala shell loaded will all the dependencies where you can write your own
-connector and test it.
-
+3. Once the setup is completed run the below command for starting spear-framework on spark:
 ```commandline
-Welcome to
-      ____              __
-     / __/__  ___ _____/ /__
-    _\ \/ _ \/ _ `/ __/  '_/
-   /___/ .__/\_,_/_/ /_/\_\   version 2.4.7
-      /_/
+Enter into spark-conatiner using the comamnd:
+docker exec -it spark bash
 
-Using Scala version 2.11.12 (OpenJDK 64-Bit Server VM, Java 1.8.0_292)
-Type in expressions to have them evaluated.
-Type :help for more information.
-
-scala>
-```
-
-4. To run manually,follow the below steps:
-
-For docker conatiners run the below commands one after the other:
-
-```
-1.Enter into the container using the command
-docker exec -it spark bash 
-
-2.Navigate to the path where the binary exists
-cd /opt/spear-framework/target/scala-2.12 
-
-3.Execute the spark shell command as below
-
-spark-shell --jars spear-framework_2.11-0.1.0-SNAPSHOT.jar,ojdbc6.jar --packages org.postgresql:postgresql:9.4.1211,org.apache.hadoop:hadoop-aws:2.10.1,org.apache.spark:spark-hive_2.11:2.4.7,org.apache.spark:spark-avro_2.11:2.4.7,org.apache.hadoop:hadoop-azure:2.10.1,org.apache.hadoop:hadoop-azure-datalake:2.10.1,com.google.cloud.spark:spark-bigquery-with-dependencies_2.11:0.18.1
+Run `spear-shell` to start the shell:
+root@hadoop # spear-shell
 ```
 
 NOTE: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source
 and write it to HDFS.
-
 
 5. To run on any on any terminal or linux machine
 
@@ -136,14 +129,12 @@ spark-shell --jars spear-framework_2.12-0.1.jar --packages "org.postgresql:postg
 
 ## Connectors
 
-Connector is basically the logic/code with which you can create a pipeline from source to target using the spear
-framework.Below are the steps to write any connector logic:
-
-1. Get the suitable connector object for the source and destination provided
-2. Write the connector logic.
-3. On completion stop the connector.
+Connector is basically the logic/code which allows you to create a pipeline from source to target using the spear framework using which you can ingest data from any source to any destination.
 
 ### Target JDBC
+Spear framework supports writing data to any RDBMS with jdbc as destination(postgres/oracle/msql etc..)  from various sources like a file(csv/json/filesystem etc..)/database(RDBMS/cloud db etc..)/streaming(kafka/dir path etc..).Given below are examples of few connectors with JDBC as target.Below examples are written for postgresql as JDBC target,but this can be extended for any jdbc target.
+
+### File source
 
 #### CSV to JDBC Connector
 
@@ -160,26 +151,24 @@ val properties = new Properties()
 properties.put("driver", "org.postgresql.Driver");
 properties.put("user", "postgres_user")
 properties.put("password", "mysecretpassword")
-properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
+properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
 
 //connector logic
-val csvJdbcConnector =SpearConnector.init
-  .source(sourceType = "file", sourceFormat = "csv")
-  .target(targetType = "relational", targetFormat = "jdbc")
-  .withName(connectorName = "CSVtoJdbcConnector")
-  .getConnector
+val csvJdbcConnector = SpearConnector
+    .createConnector(name="CSVtoPostgresConnector")
+    .source(sourceType = "file", sourceFormat = "csv")
+    .target(targetType = "relational", targetFormat = "jdbc")
+    .getConnector
 
 csvJdbcConnector
-  .source(sourceObject = "/user/hive/warehouse/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
+  .source(sourceObject = "data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
   .saveAs("__tmp__")
-  .transformSql("select state_code,party,first_name,last_name,votes from __tmp__")
-  .saveAs("__tmp2__")
   .transformSql(
     """select state_code,party,
       |sum(votes) as total_votes
-      |from __tmp2__
+      |from __tmp__
       |group by state_code,party""".stripMargin)
-  .targetJDBC(tableName = "pg_db.destination_us_elections", properties, SaveMode.Overwrite)
+  .targetJDBC(tableName = "pgdb.destination_us_elections", properties, SaveMode.Overwrite)
 csvJdbcConnector.stop()
 ```
 
@@ -221,42 +210,8 @@ only showing top 10 rows
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
 only showing top 10 rows
 
-21/01/26 14:16:59 INFO FiletoJDBC: Data after transformation using the SQL : select state_code,party,first_name,last_name,votes from __tmp__
-+----------+-----+----------+---------+-----+
-|state_code|party|first_name|last_name|votes|
-+----------+-----+----------+---------+-----+
-|AK        |Dem  |Barack    |Obama    |91696|
-|AK        |Dem  |Barack    |Obama    |91696|
-|AL        |Dem  |Barack    |Obama    |6354 |
-|AK        |Dem  |Barack    |Obama    |91696|
-|AL        |Dem  |Barack    |Obama    |18329|
-|AL        |Dem  |Barack    |Obama    |5873 |
-|AL        |Dem  |Barack    |Obama    |2200 |
-|AL        |Dem  |Barack    |Obama    |2961 |
-|AL        |Dem  |Barack    |Obama    |4058 |
-|AL        |Dem  |Barack    |Obama    |4367 |
-+----------+-----+----------+---------+-----+
-only showing top 10 rows
 
-21/01/26 14:16:59 INFO FiletoJDBC: Data is saved as a temporary table by name: __tmp2__
-21/01/26 14:16:59 INFO FiletoJDBC: select * from __tmp2__
-+----------+-----+----------+---------+-----+
-|state_code|party|first_name|last_name|votes|
-+----------+-----+----------+---------+-----+
-|AK        |Dem  |Barack    |Obama    |91696|
-|AK        |Dem  |Barack    |Obama    |91696|
-|AL        |Dem  |Barack    |Obama    |6354 |
-|AK        |Dem  |Barack    |Obama    |91696|
-|AL        |Dem  |Barack    |Obama    |18329|
-|AL        |Dem  |Barack    |Obama    |5873 |
-|AL        |Dem  |Barack    |Obama    |2200 |
-|AL        |Dem  |Barack    |Obama    |2961 |
-|AL        |Dem  |Barack    |Obama    |4058 |
-|AL        |Dem  |Barack    |Obama    |4367 |
-+----------+-----+----------+---------+-----+
-only showing top 10 rows
-
-21/01/26 14:16:59 INFO FiletoJDBC: Data after transformation using the SQL : select state_code,party,sum(votes) as total_votes from __tmp2__ group by state_code,party
+21/01/26 14:16:59 INFO FiletoJDBC: Data after transformation using the SQL : select state_code,party,sum(votes) as total_votes from __tmp__ group by state_code,party
 +----------+-----+-----------+
 |state_code|party|total_votes|
 +----------+-----+-----------+
@@ -309,10 +264,10 @@ properties.put("user", "postgres_user")
 properties.put("password", "mysecretpassword")
 properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
 
-val jsonJdbcConnector = SpearConnector.init
+val jsonJdbcConnector = SpearConnector
+  .createConnector(name="JSONtoPostgresConnector")
   .source(sourceType = "file", sourceFormat = "json")
-  .target(targetType = "relational", "jdbc")
-  .withName(connectorName = "JSONtoJDBC")
+  .target(targetType = "relational", targetFormat="jdbc")
   .getConnector
 
 jsonJdbcConnector
@@ -398,11 +353,13 @@ properties.put("user", "postgres_user")
 properties.put("password", "mysecretpassword")
 properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
 
-val xmlJdbcConnector = SpearConnector.init
+val xmlJdbcConnector = SpearConnector
+  .createConnector(name="JSONtoPostgresConnector")
   .source(sourceType = "file", sourceFormat = "xml")
   .target(targetType = "relational", targetFormat = "jdbc")
   .withName(connectorName = "XMLtoJDBC")
   .getConnector
+
 xmlJdbcConnector
   .source("data/data.xml", Map("rootTag" -> "employees", "rowTag" -> "details"))
   .saveAs("tmp")
@@ -457,108 +414,6 @@ xmlJdbcConnector.stop()
 +--------+--------+---------+--------+----+---------+
 ```
 
-#### TSV to JDBC Connector
-
-Connector for reading csv file applying transformations and storing it into postgres table using spear:\
-The input data is available in the data/product_data
-
-```scala
-import com.github.edge.roman.spear.SpearConnector
-import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.SaveMode
-
-val properties = new Properties()
-properties.put("driver", "org.postgresql.Driver");
-properties.put("user", "postgres_user")
-properties.put("password", "mysecretpassword")
-properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
-
-val connector = SpearConnector.init
-  .source(sourceType = "file", sourceFormat = "tsv")
-  .target(targetType = "relational", targetFormat = "jdbc")
-  .withName(connectorName = "TSVtoJDBC")
-  .getConnector
-connector
-  .source("data/product_data", Map("sep" -> "\t", "header" -> "true", "inferSchema" -> "true"))
-  .saveAs("tmp")
-  .transformSql("select * from tmp ")
-  .targetJDBC(tableName = "pg_db.tsv_to_jdbc", properties, SaveMode.Overwrite)
-connector.stop()
-```
-
-##### Output
-
-```
-21/02/06 12:43:54 INFO FiletoJDBC: Data after reading from tsv file in path : data/product_data
-+---+---+------+---------+
-|id |num|rating|reviews  |
-+---+---+------+---------+
-|196|242|3     |881250949|
-|186|302|3     |891717742|
-|22 |377|1     |878887116|
-|244|51 |2     |880606923|
-|166|346|1     |886397596|
-|298|474|4     |884182806|
-|115|265|2     |881171488|
-|253|465|5     |891628467|
-|305|451|3     |886324817|
-|6  |86 |3     |883603013|
-+---+---+------+---------+
-only showing top 10 rows
-
-21/02/06 12:43:55 INFO FiletoJDBC: Data is saved as a temporary table by name: tmp
-21/02/06 12:43:55 INFO FiletoJDBC: select * from tmp
-+---+---+------+---------+
-|id |num|rating|reviews  |
-+---+---+------+---------+
-|196|242|3     |881250949|
-|186|302|3     |891717742|
-|22 |377|1     |878887116|
-|244|51 |2     |880606923|
-|166|346|1     |886397596|
-|298|474|4     |884182806|
-|115|265|2     |881171488|
-|253|465|5     |891628467|
-|305|451|3     |886324817|
-|6  |86 |3     |883603013|
-+---+---+------+---------+
-only showing top 10 rows
-
-21/02/06 12:43:55 INFO FiletoJDBC: Data after transformation using the SQL : select * from tmp 
-+---+---+------+---------+
-|id |num|rating|reviews  |
-+---+---+------+---------+
-|196|242|3     |881250949|
-|186|302|3     |891717742|
-|22 |377|1     |878887116|
-|244|51 |2     |880606923|
-|166|346|1     |886397596|
-|298|474|4     |884182806|
-|115|265|2     |881171488|
-|253|465|5     |891628467|
-|305|451|3     |886324817|
-|6  |86 |3     |883603013|
-+---+---+------+---------+
-only showing top 10 rows
-
-21/02/06 12:43:56 INFO FiletoJDBC: Writing data to target table: pg_db.tsv_to_jdbc
-21/02/06 12:44:06 INFO FiletoJDBC: Showing data in target table  : pg_db.tsv_to_jdbc
-+---+---+------+---------+
-|id |num|rating|reviews  |
-+---+---+------+---------+
-|196|242|3     |881250949|
-|186|302|3     |891717742|
-|22 |377|1     |878887116|
-|244|51 |2     |880606923|
-|166|346|1     |886397596|
-|298|474|4     |884182806|
-|115|265|2     |881171488|
-|253|465|5     |891628467|
-|305|451|3     |886324817|
-|6  |86 |3     |883603013|
-+---+---+------+---------+
-only showing top 10 rows
-```
 
 #### Avro to JDBC Connector
 
@@ -577,7 +432,8 @@ properties.put("user", "postgres")
 properties.put("password", "pass")
 properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
 
-val avroJdbcConnector = SpearConnector.init
+val avroJdbcConnector = SpearConnector
+  .createConnector(name="AvrotoPostgresConnector")
   .source(sourceType="file", sourceFormat="avro")
   .target(targetType="relational", targetFormat="jdbc")
   .withName(connectorName ="AvrotoJdbcConnector" )
@@ -731,10 +587,10 @@ properties.put("user", "postgres")
 properties.put("password", "pass")
 properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
 
-val parquetJdbcConnector = SpearConnector.init
+val parquetJdbcConnector = SpearConnector
+  .createConnector(name="ParquettoPostgresConnector")
   .source(sourceType="file", sourceFormat="parquet")
   .target(targetType="relational", targetFormat="jdbc")
-  .withName(connectorName ="CSVtoJdbcConnector" )
   .getConnector
 
 parquetJdbcConnector
@@ -820,6 +676,8 @@ only showing top 10 rows
 only showing top 10 rows
 ```
 
+### JDBC source
+
 #### Oracle to JDBC Connector
 
 ```scala
@@ -836,10 +694,10 @@ properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
 
 Logger.getLogger("com.github").setLevel(Level.INFO)
 
-val oracleTOPostgresConnector = SpearConnector.init
+val oracleTOPostgresConnector = SpearConnector
+  .createConnector(name="OracletoPostgresConnector")
   .source(sourceType = "relational", sourceFormat = "jdbc")
   .target(targetType = "relational", targetFormat = "jdbc")
-  .withName(connectorName = "OracleTOPostgresConnector")
   .getConnector
 
 oracleTOPostgresConnector
@@ -933,6 +791,42 @@ SELECT
 +--------------------------+---------------------+-------------------------+---------------------------+-----------------------------+-----------------------------------+----------------------+-----------------------------------------+-------------------------+--------------------------------------------+----------------------------+
 ```
 
+### Streaming source
+
+#### Kafka to Postgres Connector
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
+import java.util.Properties
+
+val properties = new Properties()
+properties.put("driver", "org.postgresql.Driver");
+properties.put("user", "postgres_user")
+properties.put("password", "mysecretpassword")
+properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
+
+val streamTOPostgres=SpearConnector
+   .createConnector(name="StreamKafkaToPostgresconnector")
+   .source(sourceType = "stream",sourceFormat = "kafka")
+   .target(targetType = "relational",targetFormat = "jdbc")
+   .getConnector
+
+val schema = StructType(
+    Array(StructField("id", StringType),
+      StructField("name", StringType)
+    ))
+
+streamTOPostgres
+    .source(sourceObject = "stream_topic",Map("kafka.bootstrap.servers"-> "kafka:9092","failOnDataLoss"->"true","startingOffsets"-> "earliest"),schema)
+    .saveAs("__tmp2__")
+    .transformSql("select cast (id as INT), name as __tmp2__")
+    .targetJDBC(tableName="person", properties, SaveMode.Append)
+
+streamTOPostgres.stop()
+```
 
 ### Target FS (HDFS)
 
@@ -946,7 +840,8 @@ import java.util.Properties
 
 Logger.getLogger("com.github").setLevel(Level.INFO)
 
-val postgresToHiveConnector = SpearConnector.init
+val postgresToHiveConnector = SpearConnector
+  .createConnector(name="PostgrestoHiveConnector")
   .source(sourceType = "relational", sourceFormat = "jdbc")
   .target(targetType = "FS", targetFormat = "parquet")
   .getConnector
@@ -1282,4 +1177,44 @@ user@node:~$ aws s3 ls s3://destination/data
 2021-05-08 12:10:09          0 _SUCCESS
 2021-05-08 12:09:59       4224 part-00000-71fad52e-404d-422c-a6af-7889691bc506-c000.snappy.parquet
 
+```
+### How to write a Connector
+Below are the steps to write any connector logic:
+
+1. Get the suitable connector object using Spearconnector by providing the source and destination details as shown below:
+```commandline
+val connector = SpearConnector
+  .createConnector(name="defaultconnector")//name of the connector(any name)
+  .source(sourceType = "relational", sourceFormat = "jdbc")//source type and format for loading data
+  .target(targetType = "FS", targetFormat = "parquet")//target type and format for writing data to dest.
+  .getConnector
+```
+Below are the source and destination type combinations that spear-framework supports:
+```commandline
+|source type  | dest. type    | description                                                | 
+|------------ |:-------------:|:-----------------------------------------------------------:
+| file        |  relational   |connector object with file source and database as dest.     |
+| relational  |  relational   |connector object with database source and database as dest. |
+| stream      |  relational   |connector object with stream source and database as dest.   |
+| file        |  FS           |connector object with file source and FileSystem as dest.   |
+| relational  |  FS           |connector object with database source and FileSystem as dest|
+| stream      |  FS           |connector object with stream source and FileSystem as dest. |
+
+```
+
+
+2. Write the connector logic using the connector object.
+
+```commandline
+connector
+  .source(sourceObject="can be <filename/tablename/topic/api>", <connection profile Map((key->value))>)
+  .saveAs("<alias temporary table name>")// creates a temporary table on source data with the given alias name which cane be used for further transormations.
+  .transformSql(<transformations to be applied on source data>)//transform the source data if necessary
+  .targetFS(destinationFilePath = "<hdfs /s3/gcs file path>", saveAsTable = "<tablename>", <Savemode can be overwrite/append/ignore>)
+```
+
+3. On completion stop the connector.
+
+```commandline
+connector.stop()
 ```

@@ -5,7 +5,7 @@ ARG spark_version=2.4.7
 ARG hive_version=2.1.1
 
 #pre-requisites
-RUN yum install  -y  curl bash java-1.8.0-openjdk-devel openssh-server openssh-clients which wget vim postgresql-jdbc git 
+RUN yum update -y && yum install  -y  curl bash java-1.8.0-openjdk-devel openssh-server openssh-clients which wget vim postgresql-jdbc git figlet
 
 ########################################### Hadoop-client installation ####################################################
 RUN curl https://archive.apache.org/dist/hadoop/core/hadoop-${hadoop_version}/hadoop-${hadoop_version}.tar.gz -o hadoop.tgz && \
@@ -52,14 +52,16 @@ ENV SPARK_HOME /usr/bin/spark-${spark_version}-bin-without-hadoop
 ENV SPARK_LOG_DIR /usr/bin/spark-${spark_version}-bin-without-hadoop/logs
 ENV PATH $SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
 
-RUN export SPARK_DIST_CLASSPATH=$(hadoop classpath)
+ADD configs/spear-shell.sh /root/spear-shell.sh
 
+RUN export SPARK_DIST_CLASSPATH=$(hadoop classpath)
 RUN mv /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-env.sh.template /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-env.sh && \
  echo "export SPARK_DIST_CLASSPATH=$(hadoop classpath)" >> /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-env.sh && \
  echo "export SPARK_LOG_DIR=/usr/bin/spark-${spark_version}-bin-without-hadoop/logs" >> /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-env.sh &&\
  mv /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-defaults.conf.template /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-defaults.conf && \
  echo "spark.eventLog.dir file:/usr/bin/spark-${spark_version}-bin-without-hadoop/logs" >> /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-defaults.conf && \
- echo "spark.history.fs.logDirectory file:/usr/bin/spark-${spark_version}-bin-without-hadoop/logs" >> /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-defaults.conf
+ echo "spark.history.fs.logDirectory file:/usr/bin/spark-${spark_version}-bin-without-hadoop/logs" >> /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-defaults.conf &&\
+
 #################################################spark-standalone installation end#################################################################
 
 

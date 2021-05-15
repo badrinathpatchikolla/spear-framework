@@ -1,10 +1,9 @@
 package com.github.edge.roman.spear.connectors.targetjdbc
 
 import com.databricks.spark.xml.XmlDataFrameReader
-import com.github.edge.roman.spear.{Connector, SpearConnector}
+import com.github.edge.roman.spear.SpearConnector
 import com.github.edge.roman.spear.connectors.TargetJDBCConnector
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.log4j.Logger
 import org.apache.spark.sql.SaveMode
 import org.apache.spark.sql.types.StructType
 

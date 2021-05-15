@@ -4,7 +4,6 @@ import com.github.edge.roman.spear.{Connector, SpearConnector}
 import com.github.edge.roman.spear.connectors.TargetJDBCConnector
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.SaveMode
-import org.apache.log4j.Logger
 import org.apache.spark.sql.types.StructType
 
 import java.util.Properties
