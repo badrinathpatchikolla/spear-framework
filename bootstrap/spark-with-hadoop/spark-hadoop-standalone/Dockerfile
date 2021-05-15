@@ -5,7 +5,7 @@ ARG spark_version=2.4.7
 ARG hive_version=2.1.1
 
 #pre-requisites
-RUN yum update -y && yum install  -y  curl bash java-1.8.0-openjdk-devel openssh-server openssh-clients which wget vim postgresql-jdbc git figlet
+RUN yum install  -y  curl bash java-1.8.0-openjdk-devel openssh-server openssh-clients which wget vim postgresql-jdbc git epel-release figlet
 
 ########################################### Hadoop-client installation ####################################################
 RUN curl https://archive.apache.org/dist/hadoop/core/hadoop-${hadoop_version}/hadoop-${hadoop_version}.tar.gz -o hadoop.tgz && \
@@ -35,11 +35,11 @@ RUN mkdir -p /usr/bin/data/nameNode /usr/bin/data/dataNode /usr/bin/data/nameNod
 ADD configs/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
 ADD configs/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
 ADD configs/mapred-site.xml $HADOOP_HOME/etc/hadoop/mapred-site.xml
-################################################ Hadoop client install end ###############################################
+################################################ Hadoop client install end ###################################################
 
 
 
-################################################ spark-standalone without Hadoop ############################################################
+############################################### spark-standalone without Hadoop #############################################
 
 RUN curl https://archive.apache.org/dist/spark/spark-${spark_version}/spark-${spark_version}-bin-without-hadoop.tgz -o spark.tgz && \
     tar -xzf spark.tgz && \ 
@@ -50,17 +50,17 @@ RUN curl https://archive.apache.org/dist/spark/spark-${spark_version}/spark-${sp
 # set environment variables
 ENV SPARK_HOME /usr/bin/spark-${spark_version}-bin-without-hadoop
 ENV SPARK_LOG_DIR /usr/bin/spark-${spark_version}-bin-without-hadoop/logs
-ENV PATH $SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
+ENV PATH $SPARK_HOME/bin:$SPARK_HOME/sbin:/root:$PATH
 
 ADD configs/spear-shell.sh /root/spear-shell.sh
 
-RUN export SPARK_DIST_CLASSPATH=$(hadoop classpath)
+RUN export SPARK_DIST_CLASSPATH=$(hadoop classpath) 
 RUN mv /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-env.sh.template /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-env.sh && \
  echo "export SPARK_DIST_CLASSPATH=$(hadoop classpath)" >> /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-env.sh && \
  echo "export SPARK_LOG_DIR=/usr/bin/spark-${spark_version}-bin-without-hadoop/logs" >> /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-env.sh &&\
  mv /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-defaults.conf.template /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-defaults.conf && \
  echo "spark.eventLog.dir file:/usr/bin/spark-${spark_version}-bin-without-hadoop/logs" >> /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-defaults.conf && \
- echo "spark.history.fs.logDirectory file:/usr/bin/spark-${spark_version}-bin-without-hadoop/logs" >> /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-defaults.conf &&\
+ echo "spark.history.fs.logDirectory file:/usr/bin/spark-${spark_version}-bin-without-hadoop/logs" >> /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-defaults.conf && echo 'alias spear-shell="spear-shell.sh"' >> ~/.bashrc
 
 #################################################spark-standalone installation end#################################################################
 
@@ -86,4 +86,6 @@ RUN ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N "" && \
 
 ADD configs/config /usr/bin/config
 RUN mv /usr/bin/config $HOME/.ssh/ && chmod 600 $HOME/.ssh/config
+
 ##################################################### hive installtion end ####################################################
+

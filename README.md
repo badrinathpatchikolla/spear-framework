@@ -4,7 +4,8 @@ A framework which is a built on top of spark and has the ability to extract and 
 tansformations applied on the raw data,still allowing you to use the features of Apache spark.
 
 
-![image](https://user-images.githubusercontent.com/59328701/118262340-64128800-b4d2-11eb-879f-64771d00274c.png)
+![image](https://user-images.githubusercontent.com/59328701/118363544-82e84b80-b5b2-11eb-8dd2-64667ad46b9f.png)
+
 
 
 ## Table of Contents
