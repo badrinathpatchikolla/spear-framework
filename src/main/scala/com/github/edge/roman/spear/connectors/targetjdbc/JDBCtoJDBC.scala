@@ -2,13 +2,12 @@ package com.github.edge.roman.spear.connectors.targetjdbc
 
 import com.github.edge.roman.spear.{Connector, SpearConnector}
 import com.github.edge.roman.spear.connectors.TargetJDBCConnector
-import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.SaveMode
 import org.apache.spark.sql.types.StructType
 
 import java.util.Properties
 
-class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector with LazyLogging{
+class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector{
 
 
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
