@@ -13,7 +13,7 @@ class ADLSUtil {
   var container: CloudBlobContainer = null
   var blobClient: CloudBlobClient = null
 
-  def configureClient(configMap: Map[String, String]):Unit = {
+  def configureClient(configMap: Map[String, String]): Unit = {
     try {
       containerName = configMap("containerName")
       val accountName: String = configMap("accountName")
@@ -24,10 +24,7 @@ class ADLSUtil {
       container = blobClient.getContainerReference(containerName)
     } catch {
       case exception: Exception => println(exception.printStackTrace())
-
     }
-
-
   }
 
   def downloadFile(remote: String): InputStream = {
@@ -42,25 +39,23 @@ class ADLSUtil {
     stream
   }
 
-  def uploadFile(remote: String, file: File):Unit = {
+  def uploadFile(remote: String, file: File): Unit = {
     try {
       val blob = container.getBlockBlobReference(remote)
       val fileStream: InputStream = new FileInputStream(file)
       val blobOutputStream = blob.openOutputStream()
-      var next = -1
-      while ((next = fileStream.read) != -1)
+      val next = -1
+      while (fileStream.read != -1)
         blobOutputStream.write(next)
       blobOutputStream.close
       fileStream.close()
     } catch {
       case exception: Exception => println(exception.printStackTrace())
     }
-
-
   }
 
 
-  def uploadFile(remote: String, size: Long, fileStream: InputStream):Unit = {
+  def uploadFile(remote: String, size: Long, fileStream: InputStream): Unit = {
     try {
       val blob = container.getBlockBlobReference(remote)
       blob.upload(fileStream, size)

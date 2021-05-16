@@ -28,4 +28,10 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.8" % Test
 )
 
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x => MergeStrategy.first
+}
+assemblyJarName in assembly := "spear-framework-1.0.jar"
+
 assemblyJarName in assembly := "spear-framework-1.0.jar"
