@@ -1222,9 +1222,9 @@ connector.stop()
 ```
 
 ## Contributions and License
-Software Licensed unter the [Apache License 2.0](LICENSE)
+Software Licensed under the [Apache License 2.0](LICENSE)
 
-**Author**       : Anudeep Konaboina <krantianudeep@gmail.com>\
-**Contributor**  : Kayan Deshi <kalyan.mgit@gmail.com>
+**Author**         : Anudeep Konaboina <krantianudeep@gmail.com>\
+**Contributor**    : Kayan Deshi <kalyan.mgit@gmail.com>
 
 
