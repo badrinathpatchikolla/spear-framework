@@ -57,6 +57,8 @@ class FiletoFS(sourceType: String, destFormat: String) extends TargetFSConnector
       case "local" =>
         logger.info("Local File System configured successfully")
         inputStream = localFSUtil.downloadFile(sourceObject)
+      case _ =>
+        throw new Exception("Invalid source type provided or Not Supported.")
     }
     this
   }
@@ -82,6 +84,8 @@ class FiletoFS(sourceType: String, destFormat: String) extends TargetFSConnector
         hdfsUtil.configureClient(params)
         hdfsUtil.uploadFile(destinationPath, size, inputStream)
         logger.info("File upload successful")
+      case _ =>
+        throw new Exception("Invalid destination type provided or Not Supported.")
     }
     this
   }
@@ -103,6 +107,8 @@ class FiletoFS(sourceType: String, destFormat: String) extends TargetFSConnector
       case "hdfs" =>
         hdfsUtil.uploadFile(destinationPath, size, inputStream)
         logger.info("File upload successful")
+      case _ =>
+        throw new Exception("Invalid destination type provided or Not Supported.")
     }
     this
   }
