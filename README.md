@@ -35,6 +35,7 @@ tansformations applied on the raw data,still allowing you to use the features of
         + [Postgres to S3 Connector](#jdbc-to-s3-connector)
         + [Oracle to GCS Connector](#oracle-to-gcs-connector)
 - [How to write a connector](#how-to-write-a-connector)
+- [Contributors and License](#contributors-and-license)
 
 ## Introduction
 
@@ -1219,3 +1220,9 @@ connector
 ```commandline
 connector.stop()
 ```
+
+## Contributors and License
+
+Anudeep Konaboina <krantianudeep@gmail.com> and Kayan Deshi <kalyan.mgit@gmail.com>
+
+Licensed unter the [Apache License 2.0](LISENCE)
