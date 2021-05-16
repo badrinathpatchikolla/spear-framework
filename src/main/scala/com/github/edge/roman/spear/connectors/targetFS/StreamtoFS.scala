@@ -84,4 +84,7 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends TargetFSConne
   }
 
   override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = ???
+
+  override def targetFS(destinationFilePath: String): Unit = ???
+
 }
