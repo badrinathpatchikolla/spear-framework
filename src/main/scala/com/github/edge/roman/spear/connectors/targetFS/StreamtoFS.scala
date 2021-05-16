@@ -80,4 +80,6 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends TargetFSConne
       }.start()
       .awaitTermination()
   }
+
+  override def targetFS(destinationFilePath: String): Connector = ???
 }
