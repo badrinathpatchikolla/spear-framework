@@ -12,4 +12,8 @@ trait TargetJDBCConnector extends Connector {
 
   override def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit = ???
 
+  def targetFS(destinationFilePath: String): Connector = throw new NoSuchMethodException("method targetFS not compatible for given targetType relational")
+
+  def targetFS(destinationFilePath: String,params: Map[String, String]): Connector = throw new NoSuchMethodException("method targetFS not compatible for given targetType relational")
+
 }
