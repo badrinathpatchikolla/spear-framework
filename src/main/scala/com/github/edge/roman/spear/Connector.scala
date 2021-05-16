@@ -37,6 +37,10 @@ trait Connector {
 
   def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit
 
+  def targetFS(destinationPath: String, params: Map[String, String]): Connector
+
+  def targetFS(destinationFilePath: String): Connector
+
   def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit
 
 }

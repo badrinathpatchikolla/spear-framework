@@ -1,5 +1,6 @@
 package com.github.edge.roman.spear.connectors.targetFS
 
+import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.connectors.TargetFSConnector
 import org.apache.log4j.Logger
 import org.apache.spark.sql.SaveMode
@@ -53,5 +54,8 @@ class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnect
       logger.info("Saving data to path:" + destinationFilePath)
     }
   }
+
+  override def targetFS(destinationFilePath: String): Connector = ???
+
 }
 

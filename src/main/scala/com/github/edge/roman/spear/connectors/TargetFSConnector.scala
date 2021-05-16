@@ -11,4 +11,6 @@ trait TargetFSConnector extends Connector {
 
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = ???
 
+   override def targetFS(destinationPath: String, params: Map[String, String]): Connector = ???
+
 }
