@@ -17,7 +17,7 @@ class HDFSUtil {
   var fileSystem: FileSystem = null
   var bucket_name: String = null
 
-  def configureClient(configMap: Map[String, String]) = {
+  def configureClient(configMap: Map[String, String]):Unit = {
     try {
       bucket_name = configMap("bucketName")
       val coreSite: String = configMap("core-site")
@@ -46,7 +46,7 @@ class HDFSUtil {
     stream
   }
 
-  def uploadFile(remote: String, file: File) = {
+  def uploadFile(remote: String, file: File):Unit = {
     try {
       val path = new Path(remote)
       val outPutStream = fileSystem.create(path)
@@ -59,7 +59,7 @@ class HDFSUtil {
   }
 
 
-  def uploadFile(remote: String, size: Long, fileStream: InputStream) = {
+  def uploadFile(remote: String, size: Long, fileStream: InputStream):Unit = {
     try {
       val path = new Path(remote)
       val outPutStream = fileSystem.create(path)
@@ -74,7 +74,7 @@ class HDFSUtil {
   def getSize(remote: String): Long = {
     var size: Long = 0L
     try {
-      size = fileSystem.getFileStatus(new Path(remote)).getLen()
+      size = fileSystem.getFileStatus(new Path(remote)).getLen
     } catch {
       case exception: Exception => println(exception.printStackTrace())
     }

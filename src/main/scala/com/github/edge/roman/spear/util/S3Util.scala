@@ -12,7 +12,7 @@ class S3Util {
   var amazonS3Client: AmazonS3 = null
   var bucket_name: String = null
 
-  def configureClient(configMap: Map[String, String]) = {
+  def configureClient(configMap: Map[String, String]):Unit = {
     try {
       bucket_name = configMap("bucket_name")
       val aws_access_key: String = configMap("access_key")
@@ -29,14 +29,14 @@ class S3Util {
     var stream: InputStream = null
     try {
       val s3Object: S3Object = amazonS3Client.getObject(bucket_name, remote)
-      stream = s3Object.getObjectContent()
+      stream = s3Object.getObjectContent
     } catch {
       case exception: Exception => println(exception.printStackTrace())
     }
     stream
   }
 
-  def uploadFile(remote: String, file: File) = {
+  def uploadFile(remote: String, file: File):Unit = {
     try {
       amazonS3Client.putObject(bucket_name, remote, file)
     } catch {
@@ -45,7 +45,7 @@ class S3Util {
   }
 
 
-  def uploadFile(remote: String, size: Long, fileStream: InputStream) = {
+  def uploadFile(remote: String, size: Long, fileStream: InputStream):Unit = {
     try {
       val metadata: ObjectMetadata = new ObjectMetadata()
       metadata.setContentLength(size)
@@ -60,8 +60,8 @@ class S3Util {
     try {
       val listObjectsRequest: ListObjectsRequest = new ListObjectsRequest().withBucketName(bucket_name).withPrefix(remote).withDelimiter("/")
       val objects: ObjectListing = amazonS3Client.listObjects(listObjectsRequest)
-      val summaries: util.List[S3ObjectSummary] = objects.getObjectSummaries()
-      size = summaries.get(0).getSize()
+      val summaries: util.List[S3ObjectSummary] = objects.getObjectSummaries
+      size = summaries.get(0).getSize
     } catch {
       case exception: Exception => println(exception.printStackTrace())
     }

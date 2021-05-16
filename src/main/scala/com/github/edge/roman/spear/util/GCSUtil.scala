@@ -12,7 +12,7 @@ class GCSUtil {
   var storage: Storage = null
   var bucket_name: String = null
 
-  def configureClient(configMap: Map[String, String]) = {
+  def configureClient(configMap: Map[String, String]): Unit = {
     try {
       bucket_name = configMap("bucketName")
       val projectId: String = configMap("projectId")
@@ -20,7 +20,7 @@ class GCSUtil {
       storage = StorageOptions.newBuilder()
         .setProjectId(projectId)
         .setCredentials(GoogleCredentials.fromStream(
-          new FileInputStream(path_to_json_key))).build().getService()
+          new FileInputStream(path_to_json_key))).build().getService
     } catch {
       case exception: Exception => println(exception.printStackTrace())
     }
@@ -37,10 +37,10 @@ class GCSUtil {
     stream
   }
 
-  def uploadFile(remote: String, file: File) = {
+  def uploadFile(remote: String, file: File): Unit = {
     try {
       val blobId = BlobId.of(bucket_name, remote)
-      val storage = StorageOptions.getDefaultInstance.getService()
+      val storage = StorageOptions.getDefaultInstance.getService
       storage.createFrom(BlobInfo.newBuilder(blobId).build(), new FileInputStream(file))
     } catch {
       case exception: Exception => println(exception.printStackTrace())
@@ -48,15 +48,14 @@ class GCSUtil {
   }
 
 
-  def uploadFile(remote: String, size: Long, fileStream: InputStream) = {
+  def uploadFile(remote: String, size: Long, fileStream: InputStream): Unit = {
     try {
       val blobId = BlobId.of(bucket_name, remote)
-      val storage = StorageOptions.getDefaultInstance.getService()
+      val storage = StorageOptions.getDefaultInstance.getService
       storage.createFrom(BlobInfo.newBuilder(blobId).build(), fileStream)
     } catch {
       case exception: Exception => println(exception.printStackTrace())
     }
-
   }
 
   def getSize(remote: String): Long = {

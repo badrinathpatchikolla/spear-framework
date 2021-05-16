@@ -2,12 +2,12 @@ package com.github.edge.roman.spear.connectors.targetFS
 import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.connectors.TargetFSConnector
 import com.github.edge.roman.spear.util.{ADLSUtil, FTPUtil, GCSUtil, HDFSUtil, LocalFSUtil, S3Util, SMBUtil}
-import org.apache.commons.io.IOUtils
 import org.apache.log4j.Logger
 import org.apache.spark.sql.SaveMode
 import org.apache.spark.sql.types.StructType
 
-import java.io.{File, FileOutputStream, InputStream}
+import java.io.InputStream
+import java.util.Properties
 
 
 class FiletoFS(sourceType: String, destFormat: String) extends TargetFSConnector {
@@ -62,7 +62,7 @@ class FiletoFS(sourceType: String, destFormat: String) extends TargetFSConnector
     this
   }
 
-  override def targetFS(destinationPath: String, params: Map[String, String]): FiletoFS = {
+  override def targetFS(destinationPath: String, params: Map[String, String]): Unit = {
     destFormat match {
       case "local" =>
         localFSUtil.uploadFile(destinationPath,size,inputStream)
@@ -89,7 +89,7 @@ class FiletoFS(sourceType: String, destFormat: String) extends TargetFSConnector
     this
   }
 
-  override def targetFS(destinationPath: String): FiletoFS = {
+  override def targetFS(destinationPath: String):Unit = {
     destFormat match {
       case "local" =>
         localFSUtil.uploadFile(destinationPath, size, inputStream)
@@ -109,14 +109,18 @@ class FiletoFS(sourceType: String, destFormat: String) extends TargetFSConnector
       case _ =>
         throw new Exception("Invalid destination type provided or Not Supported...")
     }
-    this
   }
 
-  override def targetFS(targetType: String, objectName: String, saveMode: SaveMode): Unit = ???
 
-  override def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit = ???
+
+
+  override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = ???
 
   override def transformSql(sqlText: String): Connector = ???
 
-  override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = ???
+  override def targetFS(destinationFilePath: String, saveAsTable: String, saveMode: SaveMode): Unit = ???
+
+  override def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit = ???
+
+  override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = ???
 }

@@ -3,7 +3,6 @@ package com.github.edge.roman.spear.connectors.targetjdbc
 import com.databricks.spark.xml.XmlDataFrameReader
 import com.github.edge.roman.spear.SpearConnector
 import com.github.edge.roman.spear.connectors.TargetJDBCConnector
-import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.SaveMode
 import org.apache.spark.sql.types.StructType
 
@@ -12,8 +11,8 @@ import java.util.Properties
 class FiletoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector {
 
   override def source(sourcePath: String, params: Map[String, String], schema: StructType): FiletoJDBC = {
-    val paramsWithSchema = params+("customSchema" -> schema.toString())
-    source(sourcePath,paramsWithSchema)
+    val paramsWithSchema = params + ("customSchema" -> schema.toString())
+    source(sourcePath, paramsWithSchema)
   }
 
   override def source(sourcePath: String, params: Map[String, String]): FiletoJDBC = {
@@ -54,5 +53,9 @@ class FiletoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCCon
 
   def showTargetData(tableName: String, props: Properties): Unit = {
     SpearConnector.spark.read.jdbc(props.get("url").toString, tableName, props).show(10, false)
+  }
+
+  override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = {
+    this.df.sqlContext.sql(sqlText)
   }
 }

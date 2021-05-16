@@ -6,6 +6,8 @@ import org.apache.spark.sql.functions.from_json
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
+import java.util.Properties
+
 class StreamtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnector {
 
   import SpearConnector.spark.implicits._
@@ -80,4 +82,6 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends TargetFSConne
       }.start()
       .awaitTermination()
   }
+
+  override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = ???
 }

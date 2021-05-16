@@ -12,7 +12,7 @@ class FTPUtil() {
     client.login(username, password)
   }
 
-  def connect(host: String) = {
+  def connect(host: String):Unit = {
     try {
       client.connect(host)
       client.enterLocalPassiveMode()
@@ -22,7 +22,7 @@ class FTPUtil() {
 
   }
 
-  def configureClient(configMap: Map[String, String]) = {
+  def configureClient(configMap: Map[String, String]):Unit = {
     try {
       val host: String = configMap("host")
       val userName: String = configMap.getOrElse("user", "anonymous")
@@ -60,7 +60,7 @@ class FTPUtil() {
     try {
       val ftpFile = client.mlistFile(remote)
       if (ftpFile != null) {
-        size = ftpFile.getSize()
+        size = ftpFile.getSize
       }
     } catch {
       case exception: Exception => println(exception.printStackTrace())

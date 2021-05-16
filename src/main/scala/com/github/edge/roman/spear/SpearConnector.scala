@@ -16,7 +16,7 @@ object SpearConnector {
     new SpearConnector
   }
 
-  //companion class spearconnector
+  //companion class spear-connector
   class SpearConnector {
     private var sourceType: String = null
     private var sourceFormat: String = null
@@ -43,8 +43,9 @@ object SpearConnector {
         case ("relational", "FS") => new JDBCtoFS(sourceFormat, destFormat)
         case ("stream", "relational") => new StreamtoJDBC(sourceFormat, destFormat)
         case ("stream", "FS") => new StreamtoFS(sourceFormat, destFormat)
-        case (_, _) => throw new Exception()
+        case (_, _) => throw new Exception("un-supported source and destination type provided!!")
       }
     }
   }
+
 }

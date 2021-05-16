@@ -59,4 +59,13 @@ class StreamtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCC
       }.start()
       .awaitTermination()
   }
+
+  override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = {
+    this.df.writeStream
+      .foreachBatch { (batchDF: DataFrame, _: Long) =>
+        batchDF.sqlContext.sql(sqlText)
+      }.start()
+      .awaitTermination()
+
+  }
 }

@@ -7,12 +7,12 @@ import org.apache.spark.sql.types.StructType
 
 import java.util.Properties
 
-class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector{
+class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector {
 
 
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
-    val paramsWithSchema = params+("customSchema" -> schema.toString())
-    source(sourceObject,paramsWithSchema)
+    val paramsWithSchema = params + ("customSchema" -> schema.toString())
+    source(sourceObject, paramsWithSchema)
   }
 
   override def source(tableName: String, params: Map[String, String]): JDBCtoJDBC = {
@@ -40,5 +40,12 @@ class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCCon
 
   def showTargetData(tableName: String, props: Properties): Unit = {
     SpearConnector.spark.read.jdbc(props.get("url").toString, tableName, props).show(10, false)
+  }
+
+
+  override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = {
+    this.df.createOrReplaceTempView("TEMP")
+      this.df.write.mode(saveMode)
+      .jdbc(props.get("url").toString, "TEMP", props)
   }
 }

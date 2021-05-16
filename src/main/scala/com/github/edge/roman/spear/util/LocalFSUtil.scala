@@ -17,7 +17,7 @@ class LocalFSUtil {
     stream
   }
 
-  def uploadFile(remote: String, file: File) = {
+  def uploadFile(remote: String, file: File):Unit = {
     try {
       val outputStream: OutputStream = new FileOutputStream(new File(remote))
       val inputStream: InputStream = new FileInputStream(file)
@@ -29,7 +29,7 @@ class LocalFSUtil {
     }
   }
 
-  def uploadFile(remote: String, size: Long, fileStream: InputStream) = {
+  def uploadFile(remote: String, size: Long, fileStream: InputStream):Unit = {
     try {
       val outputStream: OutputStream = new FileOutputStream(new File(remote))
       IOUtils.copy(fileStream, outputStream)

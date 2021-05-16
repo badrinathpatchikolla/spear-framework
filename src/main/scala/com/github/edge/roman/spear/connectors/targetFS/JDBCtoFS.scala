@@ -6,6 +6,8 @@ import org.apache.log4j.Logger
 import org.apache.spark.sql.SaveMode
 import org.apache.spark.sql.types.StructType
 
+import java.util.Properties
+
 class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnector {
   val logger: Logger = Logger.getLogger(this.getClass.getName)
 
@@ -50,7 +52,8 @@ class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnect
     }
   }
 
-  override def targetFS(destinationFilePath: String): Connector = ???
-
+  override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = {
+    this.df.sqlContext.sql(sqlText)
+  }
 }
 
