@@ -108,7 +108,7 @@ class FiletoFS(sourceType: String, destFormat: String) extends TargetFSConnector
         hdfsUtil.uploadFile(destinationPath, size, inputStream)
         logger.info("File upload successful")
       case _ =>
-        throw new Exception("Invalid destination type provided or Not Supported.")
+        throw new Exception("Invalid destination type provided or Not Supported...")
     }
     this
   }
