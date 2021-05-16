@@ -1,7 +1,5 @@
 package com.github.edge.roman.spear.util
 
-
-import com.amazonaws.services.s3.model.{ObjectMetadata, S3Object}
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.mssmb2.{SMB2CreateDisposition, SMB2ShareAccess}
 import com.hierynomus.smbj.SMBClient
@@ -10,7 +8,7 @@ import com.hierynomus.smbj.connection.Connection
 import com.hierynomus.smbj.session.Session
 import com.hierynomus.smbj.share.DiskShare
 
-import java.io.{File, FileOutputStream, InputStream}
+import java.io.InputStream
 import java.util
 import scala.util.Try
 
@@ -58,7 +56,7 @@ class SMBUtil {
         .openFile(remote, util.EnumSet.of(AccessMask.GENERIC_READ), null, SMB2ShareAccess.ALL,
           SMB2CreateDisposition.FILE_OPEN,
           null)
-      size = file.getFileInformation().getStandardInformation().getEndOfFile();
+      size = file.getFileInformation().getStandardInformation.getEndOfFile
     } catch {
       case exception: Exception => println(exception.printStackTrace())
     }

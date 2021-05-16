@@ -1,33 +1,32 @@
 package com.github.edge.roman.spear
 
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
+
 import java.util.Properties
+import org.apache.spark
 
 trait Connector {
-  var sparkSession: SparkSession = null
-  var df: DataFrame = null
 
-  def init(appName: String): Connector = {
-    sparkSession = SparkSession.builder().appName(appName).enableHiveSupport().getOrCreate()
-    this
-  }
+  var df: DataFrame = null
 
   def saveAs(alias: String): Connector = {
     this.df.createOrReplaceTempView(alias)
-    df.show(10, false)
     this
   }
 
-  def toDF: DataFrame=this.df
-
-  def cacheData(): Connector= {
+  def cacheData(): Connector = {
     this.df.cache()
     this
   }
 
-  def stop(): Unit = this.sparkSession.stop()
+  def toDF: DataFrame = this.df
+
+  def stop(): Unit = SpearConnector.spark.stop()
 
   def source(sourceObject: String, params: Map[String, String] = Map()): Connector
+
+  def source(sourceObject: String, params: Map[String, String],schema:StructType):Connector
 
   def sourceSql(params: Map[String, String], sqlText: String): Connector
 
@@ -37,10 +36,12 @@ trait Connector {
 
   def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit
 
-  def targetFS(destinationPath: String, params: Map[String, String]): Connector
+  def targetFS(destinationPath: String, params: Map[String, String]): Unit
 
-  def targetFS(destinationFilePath: String): Connector
+  def targetFS(destinationFilePath: String): Unit
 
   def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit
+
+  def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit
 
 }
