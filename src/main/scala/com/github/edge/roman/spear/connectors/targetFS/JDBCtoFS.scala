@@ -49,5 +49,8 @@ class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnect
       this.df.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).save()
     }
   }
+
+  override def targetFS(destinationFilePath: String): Connector = ???
+
 }
 
