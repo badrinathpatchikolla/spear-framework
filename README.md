@@ -1,7 +1,6 @@
 # Spear Framework
 
-A framework which is a built on top of spark and has the ability to extract and load (ETL or ELT job) any kind of data (structured/unstructured/stream) with custom
-tansformations applied on the raw data,still allowing you to use the features of Apache spark.
+A framework wich provides the scope to write ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT job) any kind of data (structured/unstructured/cloud/stream) with custom tansformations applied on them can be written and executed seamlessly using spear connectors.
 
 
 ![image](https://user-images.githubusercontent.com/59328701/118363544-82e84b80-b5b2-11eb-8dd2-64667ad46b9f.png)
@@ -1209,15 +1208,20 @@ Below are the source and destination type combinations that spear-framework supp
 
 ```commandline
 connector
+   //souce object and connection profile needs to be specified
   .source(sourceObject="can be <filename/tablename/topic/api>", <connection profile Map((key->value))>)
-  .saveAs("<alias temporary table name>")// creates a temporary table on source data with the given alias name which cane be used for further transormations.
-  .transformSql(<transformations to be applied on source data>)//transform the source data if necessary
+  // creates a temporary table on source data with the given alias name which cane be used for further transormations
+  .saveAs("<alias temporary table name>")
+  //apply custom tranformations on the loaded source data.(optional/can be applied only if necessary)
+  .transformSql(<transformations to be applied on source data>)
+  //target details where you want to load the data.
   .targetFS(destinationFilePath = "<hdfs /s3/gcs file path>", saveAsTable = "<tablename>", <Savemode can be overwrite/append/ignore>)
 ```
 
 3. On completion stop the connector.
 
 ```commandline
+//stops the connector object
 connector.stop()
 ```
 
