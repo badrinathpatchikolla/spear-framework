@@ -2,7 +2,7 @@
 
 A framework wich provides the scope to write ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT job) any kind of data (structured/unstructured/cloud/stream) with custom tansformations applied on them can be written and executed seamlessly using spear connectors.
 
-[![Build Status](https://github.com/AnudeepKonaboina/spear-framework/blob/main/.github/workflows/spear.yml/badge.svg??branch=main)]
+[![Build Status](https://github.com/AnudeepKonaboina/spear-framework/workflows/spear/badge.svg)](https://github.com/AnudeepKonaboina/spear-framework/actions)
 
 ![image](https://user-images.githubusercontent.com/59328701/118363544-82e84b80-b5b2-11eb-8dd2-64667ad46b9f.png)
 
