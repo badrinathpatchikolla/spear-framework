@@ -47,8 +47,16 @@ class FiletoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCCon
   }
 
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
-    this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
-    showTargetData(tableName: String, props: Properties)
+    destFormat match {
+      case "soql" =>
+        this.df.write.format("com.springml.spark.salesforce").option("sfObject", tableName)
+          .option("username", props.get("username").toString)
+          .option("password", props.get("password").toString)
+          .option("sfObject", tableName).save()
+      case _ =>
+        this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
+        showTargetData(tableName: String, props: Properties)
+    }
   }
 
   def showTargetData(tableName: String, props: Properties): Unit = {

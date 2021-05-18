@@ -2,9 +2,7 @@ package com.github.edge.roman.spear
 
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
-
 import java.util.Properties
-import org.apache.spark
 
 trait Connector {
 
@@ -20,13 +18,23 @@ trait Connector {
     this
   }
 
+  def repartition(n: Int): Connector = {
+    this.df.repartition(n)
+    this
+  }
+
+  def coalesce(n: Int): Connector = {
+    this.df.coalesce(n)
+    this
+  }
+
   def toDF: DataFrame = this.df
 
   def stop(): Unit = SpearConnector.spark.stop()
 
   def source(sourceObject: String, params: Map[String, String] = Map()): Connector
 
-  def source(sourceObject: String, params: Map[String, String],schema:StructType):Connector
+  def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector
 
   def sourceSql(params: Map[String, String], sqlText: String): Connector
 
@@ -45,3 +53,4 @@ trait Connector {
   def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit
 
 }
+

@@ -17,14 +17,24 @@ class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnect
   }
 
   override def source(tableName: String, params: Map[String, String]): JDBCtoFS = {
-    val df = SpearConnector.spark.read.format(sourceFormat).option("dbtable", tableName).options(params).load()
-    this.df = df
+    sourceFormat match {
+      case "soql" =>
+        throw new Exception(tableName +"object cannot be loaded directly...instead use sourceSql function with soql query")
+      case _ =>
+        val df = SpearConnector.spark.read.format(sourceFormat).option("dbtable", tableName).options(params).load()
+        this.df = df
+    }
     this
   }
 
   override def sourceSql(params: Map[String, String], sqlText: String): JDBCtoFS = {
-    val _df = SpearConnector.spark.read.format(sourceFormat).option("dbtable", s"($sqlText)temp").options(params).load()
-    this.df = _df
+    sourceFormat match {
+      case "soql" =>
+        SpearConnector.spark.read.format("com.springml.spark.salesforce").option("soql", s"$sqlText").options(params).load()
+      case _ =>
+        val _df = SpearConnector.spark.read.format(sourceFormat).option("dbtable", s"($sqlText)temp").options(params).load()
+        this.df = _df
+    }
     this
   }
 

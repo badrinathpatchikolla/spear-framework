@@ -31,9 +31,6 @@ class Test extends FunSuite with BeforeAndAfter {
   runTests(fileDF("data/us-election-2012-results-by-county.csv"), tableDf("test_table", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://localhost:5432/pgdb")), "csvtopostgresconnector")
 
 
-
-
-
   after {
     SpearConnector.spark.stop()
   }

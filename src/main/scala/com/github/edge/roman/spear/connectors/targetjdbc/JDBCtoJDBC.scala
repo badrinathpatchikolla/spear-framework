@@ -16,14 +16,24 @@ class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCCon
   }
 
   override def source(tableName: String, params: Map[String, String]): JDBCtoJDBC = {
-    val df = SpearConnector.spark.read.format(sourceFormat).option("dbtable", tableName).options(params).load()
-    this.df = df
+    sourceFormat match {
+      case "soql" =>
+        throw new Exception(tableName +"object cannot be loaded directly...instead use sourceSql function with soql query")
+      case _ =>
+        val df = SpearConnector.spark.read.format(sourceFormat).option("dbtable", tableName).options(params).load()
+        this.df = df
+    }
     this
   }
 
   override def sourceSql(params: Map[String, String], sqlText: String): JDBCtoJDBC = {
-    val _df = SpearConnector.spark.read.format(sourceFormat).option("dbtable", s"($sqlText)temp").options(params).load()
-    this.df = _df
+    sourceFormat match {
+      case "soql" =>
+        SpearConnector.spark.read.format("com.springml.spark.salesforce").option("soql", s"$sqlText").options(params).load()
+      case _ =>
+        val _df = SpearConnector.spark.read.format(sourceFormat).option("dbtable", s"($sqlText)temp").options(params).load()
+        this.df = _df
+    }
     this
   }
 
@@ -34,8 +44,16 @@ class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCCon
   }
 
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
-    this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
-    showTargetData(tableName: String, props: Properties)
+    destFormat match {
+      case "soql" =>
+        this.df.write.format("com.springml.spark.salesforce").option("sfObject", tableName)
+          .option("username", props.get("username").toString)
+          .option("password", props.get("password").toString)
+          .option("sfObject", tableName).save()
+      case _ =>
+        this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
+        showTargetData(tableName: String, props: Properties)
+    }
   }
 
   def showTargetData(tableName: String, props: Properties): Unit = {

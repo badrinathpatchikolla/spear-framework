@@ -86,7 +86,6 @@ class FiletoFS(sourceType: String, destFormat: String) extends TargetFSConnector
       case _ =>
         throw new Exception("Invalid destination type provided or Not Supported.")
     }
-    this
   }
 
   override def targetFS(destinationPath: String):Unit = {
