@@ -1,11 +1,9 @@
 # Spear Framework
-
-A framework wich provides the scope to write ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT job) any kind of data (structured/unstructured/cloud/stream) with custom tansformations applied on them can be written and executed seamlessly using spear connectors.
-
 [![Build Status](https://github.com/AnudeepKonaboina/spear-framework/workflows/spear-framework-build/badge.svg)](https://github.com/AnudeepKonaboina/spear-framework/actions)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![GitHub tag](https://img.shields.io/github/v/release/AnudeepKonaboina/spear-framework)](https://GitHub.com/AnudeepKonaboina/spear-framework/tags/)
 
-![image](https://user-images.githubusercontent.com/59328701/118363544-82e84b80-b5b2-11eb-8dd2-64667ad46b9f.png)
-
+The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
 
 ## Table of Contents
@@ -39,7 +37,9 @@ A framework wich provides the scope to write ETL-connectors/pipelines for moving
 
 ## Introduction
 
-Spear Framework is basically used to write connectors (ETL jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination.
+Spear Framework is basically used to write connectors (ETL jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with minimal code.
+
+![image](https://user-images.githubusercontent.com/59328701/118363544-82e84b80-b5b2-11eb-8dd2-64667ad46b9f.png)
 
 ## Pre-Requisites
 
@@ -92,9 +92,9 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 Below are the steps to write and run your own connector:
 
-1. Clone the repository from git
+1. Clone the repository from git and navigate to project directory
 ```commandline
-git clone https://github.com/AnudeepKonaboina/spear-framework.git
+git clone https://github.com/AnudeepKonaboina/spear-framework.git && cd /opt/spear-framework
 ```
 
 2. Run setup.sh script using the command
@@ -111,7 +111,7 @@ Run `spear-shell` to start the shell:
 root@hadoop # spear-shell
 ```
 
-NOTE: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source
+**NOTE**: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source
 and write it to HDFS.
 
 5. To run on any on any terminal or linux machine
@@ -126,7 +126,7 @@ spark-shell --jars spear-framework_2.12-0.1.jar --packages "org.postgresql:postg
 
 ```
 
-6. You can write your own connector (look at some examples below ) and test it.
+6. You can write your own connector easily(look at some examplew below).
 
 
 ## Connectors
@@ -1227,9 +1227,11 @@ connector.stop()
 ```
 
 ## Contributions and License
+#### License
 Software Licensed under the [Apache License 2.0](LICENSE)
-
-**Author**         : Anudeep Konaboina <krantianudeep@gmail.com>\
-**Contributor**    : Kayan Deshi <kalyan.mgit@gmail.com>
+#### Author         
+ Anudeep Konaboina <krantianudeep@gmail.com>
+#### Contributor 
+ Kayan Deshi <kalyan.mgit@gmail.com>
 
 
