@@ -39,7 +39,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 
 Spear Framework is basically used to write connectors (ETL jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with minimal code.
 
-![image](https://user-images.githubusercontent.com/59328701/118363544-82e84b80-b5b2-11eb-8dd2-64667ad46b9f.png)
+![image](https://user-images.githubusercontent.com/59328701/118606240-cf12d600-b7d4-11eb-9d9f-c308b3ef286c.png)
 
 ## Pre-Requisites
 
@@ -795,7 +795,7 @@ SELECT
 
 ### Streaming source
 
-#### Kafka to Postgres Connector
+#### Kafka to JDBC Connector
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -1073,6 +1073,37 @@ SELECT
 +--------------------------+------------------+--------------+--------------+----------+----------+---------------+------------------+---------------------------+-------------------------------+---------------+----------------+
 
 ```
+
+### Streaming source
+
+#### Kafka to FS Connector
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
+
+val streamTOHdfs=SpearConnector
+   .createConnector(name="StreamKafkaToPostgresconnector")
+   .source(sourceType = "stream",sourceFormat = "kafka")
+   .target(targetType = "FS",targetFormat = "parquet")
+   .getConnector
+   
+val schema = StructType(
+    Array(StructField("id", StringType),
+      StructField("name", StringType)
+    ))
+
+streamTOHdfs
+    .source(sourceObject = "stream_topic",Map("kafka.bootstrap.servers"-> "kafka:9092","failOnDataLoss"->"true","startingOffsets"-> "earliest"),schema)
+    .saveAs("__tmp2__")
+    .transformSql("select cast (id as INT), name as __tmp2__")
+   .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.ora_data", SaveMode.Append)
+
+streamTOHdfs.stop()
+```
+
 
 
 ### Target FS (Cloud)
