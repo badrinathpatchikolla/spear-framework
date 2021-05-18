@@ -33,5 +33,3 @@ assemblyMergeStrategy in assembly := {
   case x => MergeStrategy.first
 }
 assemblyJarName in assembly := "spear-framework-1.0.jar"
-
-assemblyJarName in assembly := "spear-framework-1.0.jar"
