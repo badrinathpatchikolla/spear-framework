@@ -36,7 +36,7 @@ class FiletoFS(sourceFormat: String, destFormat: String) extends AbstractConnect
         throw new Exception("Invalid source format provided.")
     }
     logger.info(s"Reading source file: ${sourceFilePath} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
-    if (this.verboseLogging) this.df.show(10, false)
+    if (this.verboseLogging) this.df.show(this.numRows, truncate = false)
     this
   }
 
@@ -50,7 +50,7 @@ class FiletoFS(sourceFormat: String, destFormat: String) extends AbstractConnect
     logger.info(s"Write data to target path: ${destinationFilePath} with format: ${sourceFormat} and saved as table ${tableName} completed with status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) {
       val targetDF = SpearConnector.spark.sql("select * from " + tableName)
-      targetDF.show(10, false)
+      targetDF.show(this.numRows,truncate = false )
     }
   }
 

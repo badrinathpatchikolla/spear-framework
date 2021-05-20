@@ -50,7 +50,7 @@ class StreamtoFS(sourceFormat: String, destFormat: String)  extends AbstractConn
 
   override def transformSql(sqlText: String): Connector = {
     val _df = this.df.sqlContext.sql(sqlText)
-    _df.show(10, false)
+    _df.show(this.numRows, false)
     this.df = _df
     this
   }
@@ -64,7 +64,7 @@ class StreamtoFS(sourceFormat: String, destFormat: String)  extends AbstractConn
           batchDF.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).saveAsTable(tableName)
         }
         val targetDF = SpearConnector.spark.sql("select * from " + tableName)
-        targetDF.show(10, false)
+        targetDF.show(this.numRows, false)
       }.start()
       .awaitTermination()
   }

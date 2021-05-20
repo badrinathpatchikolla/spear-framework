@@ -9,6 +9,7 @@ abstract class AbstractConnector extends Connector {
   val logger: Logger = Logger.getLogger(this.getClass.getName)
   var df: DataFrame = _
   var verboseLogging: Boolean = false
+  var numRows=10
 
   def setVeboseLogging(enable: Boolean): Unit = {
     this.verboseLogging = enable
@@ -45,7 +46,7 @@ abstract class AbstractConnector extends Connector {
   override def transformSql(sqlText: String): Connector = {
     this.df = this.df.sqlContext.sql(sqlText)
     logger.info(s"Executing tranformation sql: ${sqlText} status :${SpearCommons.SuccessStatus}")
-    if (this.verboseLogging) this.df.show(10, false)
+    if (this.verboseLogging) this.df.show(numRows, false)
     this
   }
 }

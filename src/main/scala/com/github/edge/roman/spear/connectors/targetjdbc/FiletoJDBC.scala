@@ -38,7 +38,7 @@ class FiletoJDBC(sourceFormat: String, destFormat: String)  extends AbstractConn
         throw new Exception("Invalid source format provided.")
     }
     logger.info(s"Reading source file: ${sourceFilePath} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
-    if (this.verboseLogging) this.df.show(10, false)
+    if (this.verboseLogging) this.df.show(this.numRows, false)
     this
   }
 
@@ -58,7 +58,7 @@ class FiletoJDBC(sourceFormat: String, destFormat: String)  extends AbstractConn
         this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
     }
     logger.info(s"Write data to table/object ${tableName} completed with status:${SpearCommons.SuccessStatus} ")
-    if (this.verboseLogging) this.df.show(10, false)
+    if (this.verboseLogging) this.df.show(this.numRows, false)
   }
 
   override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = {
