@@ -89,7 +89,6 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 ```
 
-
 ## How to Run
 
 Below are the steps to write and run your own connector:
@@ -127,7 +126,6 @@ and write it to HDFS.
 spark-shell --jars spear-framework_2.12-0.1.jar --packages "org.postgresql:postgresql:9.4.1211,org.apache.spark:spark-hive_2.11:2.4.0"
 
 ```
-
 6. You can write your own connector easily(look at some examplew below).
 
 
