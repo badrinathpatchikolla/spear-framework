@@ -23,34 +23,34 @@ class FStoFS(sourceFormat: String, destFormat: String) extends AbstractConnector
 
   override def source(sourceObject: String, params: Map[String, String]): FStoFS = {
     sourceFormat match {
-      case "ftp" =>
+      case SpearCommons.FTP =>
         ftpUtil.configureClient(params)
         logger.info("FTP Client configured successfully")
         inputStream = ftpUtil.downloadFile(sourceObject)
         size = ftpUtil.getSize(sourceObject)
-      case "aws" =>
+      case SpearCommons.AWS =>
         s3Util.configureClient(params)
         logger.info("Amazon S3 Client configured successfully")
         inputStream = s3Util.downloadFile(sourceObject)
         size = s3Util.getSize(sourceObject)
-      case "smb" =>
+      case SpearCommons.SMB =>
         smbUtil.configureClient(params)
         logger.info("SMB Client configured successfully")
         inputStream = smbUtil.downloadFile(sourceObject)
         size = smbUtil.getSize(sourceObject)
-      case "gcs" =>
+      case SpearCommons.GCS =>
         gcsUtil.configureClient(params)
         logger.info("Google Cloud Storage configured successfully")
         inputStream = gcsUtil.downloadFile(sourceObject)
-      case "adls" =>
+      case SpearCommons.ADLS =>
         adlsUtil.configureClient(params)
         logger.info("Azure Blob Storage configured successfully")
         inputStream = adlsUtil.downloadFile(sourceObject)
-      case "hdfs" =>
+      case SpearCommons.HDFS =>
         hdfsUtil.configureClient(params)
         logger.info("Hadoop File System configured successfully")
         inputStream = hdfsUtil.downloadFile(sourceObject)
-      case "local" =>
+      case SpearCommons.LOCAL =>
         logger.info("Local File System configured successfully")
         inputStream = localFSUtil.downloadFile(sourceObject)
       case _ =>
@@ -61,22 +61,22 @@ class FStoFS(sourceFormat: String, destFormat: String) extends AbstractConnector
 
   override def targetFS(destinationPath: String, params: Map[String, String]): Unit = {
     destFormat match {
-      case "local" =>
+      case SpearCommons.LOCAL =>
         localFSUtil.uploadFile(destinationPath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
-      case "aws" =>
+      case SpearCommons.AWS =>
         s3Util.configureClient(params)
         s3Util.uploadFile(destinationPath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
-      case "gcs" =>
+      case SpearCommons.GCS =>
         gcsUtil.configureClient(params)
         gcsUtil.uploadFile(destinationPath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
-      case "adls" =>
+      case SpearCommons.ADLS =>
         adlsUtil.configureClient(params)
         adlsUtil.uploadFile(destinationPath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
-      case "hdfs" =>
+      case SpearCommons.HDFS =>
         hdfsUtil.configureClient(params)
         hdfsUtil.uploadFile(destinationPath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
@@ -87,19 +87,19 @@ class FStoFS(sourceFormat: String, destFormat: String) extends AbstractConnector
 
   override def targetFS(destinationPath: String, saveMode: SaveMode): Unit = {
     destFormat match {
-      case "local" =>
+      case SpearCommons.LOCAL =>
         localFSUtil.uploadFile(destinationPath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
-      case "aws" =>
+      case SpearCommons.AWS =>
         s3Util.uploadFile(destinationPath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
-      case "gcs" =>
+      case SpearCommons.GCS =>
         gcsUtil.uploadFile(destinationPath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
-      case "adls" =>
+      case SpearCommons.ADLS =>
         adlsUtil.uploadFile(destinationPath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
-      case "hdfs" =>
+      case SpearCommons.HDFS =>
         hdfsUtil.uploadFile(destinationPath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
       case _ =>
