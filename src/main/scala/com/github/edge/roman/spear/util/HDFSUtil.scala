@@ -32,8 +32,10 @@ class HDFSUtil {
     try {
       val path = new Path(remote)
       val exists = fileSystem.exists(path)
+      var inputStream: InputStream = null
       if (exists)
-        fileSystem.open(path)
+        inputStream=fileSystem.open(path)
+      inputStream
     } catch {
       case exception: Exception => throw new Exception(exception)
     }
@@ -47,7 +49,7 @@ class HDFSUtil {
       val conf = new Configuration()
       IOUtils.copyBytes(inputStream, outPutStream, conf, true)
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
@@ -61,7 +63,6 @@ class HDFSUtil {
     } catch {
       case exception: Exception => println(exception.printStackTrace())
     }
-
   }
 
   def getSize(remote: String): Long = {
@@ -73,5 +74,4 @@ class HDFSUtil {
     }
     size
   }
-
 }
