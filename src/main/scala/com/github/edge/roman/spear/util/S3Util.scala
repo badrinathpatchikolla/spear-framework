@@ -15,10 +15,10 @@ class S3Util {
   def configureClient(configMap: Map[String, String]):Unit = {
     try {
       bucket_name = configMap("bucket_name")
-      val aws_access_key: String = configMap("access_key")
-      val aws_secret_key: String = configMap("secret_key")
+      val accessKey: String = configMap("access_key")
+      val secretAccessKey: String = configMap("secret_key")
       val region: String = configMap("region")
-      val awsCredentials = new BasicAWSCredentials(aws_access_key, aws_secret_key)
+      val awsCredentials = new BasicAWSCredentials(accessKey, secretAccessKey)
       amazonS3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCredentials)).withRegion(region).build()
     } catch {
       case exception: Exception => println(exception.printStackTrace())

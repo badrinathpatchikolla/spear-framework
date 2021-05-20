@@ -21,16 +21,17 @@ class FiletoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCCon
         val df = SpearConnector.spark.read.options(params).csv(sourcePath)
         this.df = df
       case "avro" =>
-        val df = SpearConnector.spark.read.format("avro").options(params).load(sourcePath)
+        val df = SpearConnector.spark.read.format(sourceFormat).options(params).load(sourcePath)
         this.df = df
       case "parquet" =>
-        val df = SpearConnector.spark.read.format("parquet").options(params).load(sourcePath)
+        val df = SpearConnector.spark.read.format(sourceFormat).options(params).load(sourcePath)
         this.df = df
       case "json" =>
         val df = SpearConnector.spark.read.options(params).json(sourcePath)
         this.df = df
       case "tsv" =>
-        val df = SpearConnector.spark.read.options(params).csv(sourcePath)
+        val _params = params + ("sep" -> "\t")
+        val df = SpearConnector.spark.read.options(_params).csv(sourcePath)
         this.df = df
       case "xml" =>
         val df = SpearConnector.spark.read.format("com.databricks.spark.xml").options(params).xml(sourcePath)
@@ -49,10 +50,15 @@ class FiletoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCCon
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
     destFormat match {
       case "soql" =>
-        this.df.write.format("com.springml.spark.salesforce").option("sfObject", tableName)
+        this.df.write.format("com.springml.spark.salesforce")
           .option("username", props.get("username").toString)
           .option("password", props.get("password").toString)
           .option("sfObject", tableName).save()
+      case "saql" =>
+        this.df.write.format("com.springml.spark.salesforce")
+          .option("username", props.get("username").toString)
+          .option("password", props.get("password").toString)
+          .option("datasetName", tableName).save()
       case _ =>
         this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
         showTargetData(tableName: String, props: Properties)

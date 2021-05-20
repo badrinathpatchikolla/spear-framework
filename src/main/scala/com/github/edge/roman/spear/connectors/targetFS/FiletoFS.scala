@@ -1,5 +1,6 @@
 package com.github.edge.roman.spear.connectors.targetFS
 import com.github.edge.roman.spear.Connector
+import com.github.edge.roman.spear.commons.SpearCommons
 import com.github.edge.roman.spear.connectors.TargetFSConnector
 import com.github.edge.roman.spear.util.{ADLSUtil, FTPUtil, GCSUtil, HDFSUtil, LocalFSUtil, S3Util, SMBUtil}
 import org.apache.log4j.Logger
@@ -66,23 +67,23 @@ class FiletoFS(sourceType: String, destFormat: String) extends TargetFSConnector
     destFormat match {
       case "local" =>
         localFSUtil.uploadFile(destinationPath,size,inputStream)
-        logger.info("File upload successful")
+        logger.info(SpearCommons.FileUploadSuccess)
       case "aws" =>
         s3Util.configureClient(params)
         s3Util.uploadFile(destinationPath, size, inputStream)
-        logger.info("File upload successful")
+        logger.info(SpearCommons.FileUploadSuccess)
       case "gcs" =>
         gcsUtil.configureClient(params)
         gcsUtil.uploadFile(destinationPath, size, inputStream)
-        logger.info("File upload successful")
+        logger.info(SpearCommons.FileUploadSuccess)
       case "adls" =>
         adlsUtil.configureClient(params)
         adlsUtil.uploadFile(destinationPath, size, inputStream)
-        logger.info("File upload successful")
+        logger.info(SpearCommons.FileUploadSuccess)
       case "hdfs" =>
         hdfsUtil.configureClient(params)
         hdfsUtil.uploadFile(destinationPath, size, inputStream)
-        logger.info("File upload successful")
+        logger.info(SpearCommons.FileUploadSuccess)
       case _ =>
         throw new Exception("Invalid destination type provided or Not Supported.")
     }
@@ -92,19 +93,19 @@ class FiletoFS(sourceType: String, destFormat: String) extends TargetFSConnector
     destFormat match {
       case "local" =>
         localFSUtil.uploadFile(destinationPath, size, inputStream)
-        logger.info("File upload successful")
+        logger.info(SpearCommons.FileUploadSuccess)
       case "aws" =>
         s3Util.uploadFile(destinationPath, size, inputStream)
-        logger.info("File upload successful")
+        logger.info(SpearCommons.FileUploadSuccess)
       case "gcs" =>
         gcsUtil.uploadFile(destinationPath, size, inputStream)
-        logger.info("File upload successful")
+        logger.info(SpearCommons.FileUploadSuccess)
       case "adls" =>
         adlsUtil.uploadFile(destinationPath, size, inputStream)
-        logger.info("File upload successful")
+        logger.info(SpearCommons.FileUploadSuccess)
       case "hdfs" =>
         hdfsUtil.uploadFile(destinationPath, size, inputStream)
-        logger.info("File upload successful")
+        logger.info(SpearCommons.FileUploadSuccess)
       case _ =>
         throw new Exception("Invalid destination type provided or Not Supported...")
     }

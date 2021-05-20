@@ -16,11 +16,11 @@ class GCSUtil {
     try {
       bucket_name = configMap("bucketName")
       val projectId: String = configMap("projectId")
-      val path_to_json_key: String = configMap("path_to_json_key")
+      val gcsAuthKeyPath: String = configMap("gcsAuthKeyPath")
       storage = StorageOptions.newBuilder()
         .setProjectId(projectId)
         .setCredentials(GoogleCredentials.fromStream(
-          new FileInputStream(path_to_json_key))).build().getService
+          new FileInputStream(gcsAuthKeyPath))).build().getService
     } catch {
       case exception: Exception => println(exception.printStackTrace())
     }

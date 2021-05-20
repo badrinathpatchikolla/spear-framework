@@ -20,13 +20,15 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
             + [Avro to JDBC Connector](#avro-to-jdbc-connector)
             + [Parquet to JDBC Connector](#parquet-to-jdbc-connector)
         - [JDBC Source](#jdbc-source)
-            + [Oracle to JDBC Connector](#oracle-to-jdbc-connector)
+            + [Oracle to Postgres Connector](#oracle-to-postgres-connector)
+            + [Postgres to Salesforce Connector](#postgres-to-salesforce-connector)
         - [Streaming Source](#streaming-source)
-            + [kafka to JDBC Connector](#kafka-to-jdbc-connector)
+            + [kafka to Postgres Connector](#kafka-to-postgres-connector)
     * [Target FS (HDFS)](#target-fs-hdfs)
         - [JDBC Source](#jdbc-source)
             + [Postgres to Hive Connector](#postgres-to-hive-connector)
             + [Oracle to Hive Connector](#oracle-to-hive-connector)
+            + [Salesforce to Hive Connector](#salesforce-to-hive-connector)
         - [Streaming Source](#streaming-source)
             + [kafka to FS Connector](#kafka-to-hive-connector)
     * [Target FS (Cloud)](#target-fs-cloud)
@@ -680,7 +682,7 @@ only showing top 10 rows
 
 ### JDBC source
 
-#### Oracle to JDBC Connector
+#### Oracle to Postgres Connector
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -793,9 +795,41 @@ SELECT
 +--------------------------+---------------------+-------------------------+---------------------------+-----------------------------+-----------------------------------+----------------------+-----------------------------------------+-------------------------+--------------------------------------------+----------------------------+
 ```
 
+#### Postgres to Salesforce Connector
+While writing to Salesforce,below are the pre-requisites one must take care of:
+1. A salesforce object/dataset must be available at Salesforce as spark will not create an object automatically.
+2. Also the columns/fields in source data or dataframe must match the fileds in the destination salesforce object
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+import java.util.Properties
+
+val targetproperties = new Properties()
+  targetproperties.put("username", "user")
+  targetproperties.put("password", "pass<TOKEN>")
+
+val postgresSalesForce = SpearConnector
+    .createConnector("POSTGRES-SALESFORCE")
+    .source(sourceType = "relational", sourceFormat = "jdbc")
+    .target(targetType = "relational", targetFormat = "soql")
+    .getConnector
+
+postgresSalesForce
+    .source(sourceObject = "salesforce_source", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres:5432/pgdb"))
+    .saveAs("__tmp__")
+    .transformSql(
+      """
+        |select person_id as person_id__c,
+        |name as person_name__c
+        |from __tmp__""".stripMargin)
+    .targetJDBC(tableName = "Sample__c", targetproperties, SaveMode.Overwrite)
+postgresSalesForce.stop()
+```
+
 ### Streaming source
 
-#### Kafka to JDBC Connector
+#### Kafka to Postgres Connector
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -824,7 +858,7 @@ val schema = StructType(
 streamTOPostgres
     .source(sourceObject = "stream_topic",Map("kafka.bootstrap.servers"-> "kafka:9092","failOnDataLoss"->"true","startingOffsets"-> "earliest"),schema)
     .saveAs("__tmp2__")
-    .transformSql("select cast (id as INT), name as __tmp2__")
+    .transformSql("select cast (id as INT) as id, name from __tmp2__")
     .targetJDBC(tableName="person", properties, SaveMode.Append)
 
 streamTOPostgres.stop()
@@ -1074,6 +1108,51 @@ SELECT
 
 ```
 
+#### Salesforce to Hive Connector
+Spark cannot read a salesforce object directly if specified,You must always use a soql or a saql query to read from the Salesforce object.
+
+```scala
+
+  import com.github.edge.roman.spear.SpearConnector
+  import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+  val salseforceToHiveConnector = SpearConnector
+    .createConnector("salseforce-hive")
+    .source(sourceType = "relational", sourceFormat = "soql")
+    .target(targetType = "FS", targetFormat = "parquet")
+    .getConnector
+
+  salseforceToHiveConnector.sourceSql(Map( "login"-> "https://login.salesforce.com","username" -> "user", "password" -> "pass"),
+    """select
+		  |    Id,
+		  |    name,
+		  |    OwnerId,
+		  |    age__c,
+		  |    gender__c,
+		  |    guardianname__c,
+		  |    ingest_ts_utc__c,
+		  |    name_siml_score__c,
+		  |    year_of_birth__c,
+		  |    LastModifiedById,
+		  |    LastModifiedDate
+		  |    from sales_test__c""".stripMargin).saveAs("__temp__")
+    .transformSql("""select
+      |    Id,
+      |    name,
+      |    OwnerId,
+      |    age__c,
+      |    gender__c,
+      |    guardianname__c,
+      |    ingest_ts_utc__c,
+      |    cast(name_siml_score__c as Float) name_siml_score__c,
+      |    year_of_birth__c,
+      |    LastModifiedById,
+      |    cast(unix_timestamp(LastModifiedDate,"yyyy-MM-dd") AS timestamp) as LastModifiedDate
+      |    from __temp__""".stripMargin)
+    .targetFS("/user/hive/metastore/salseforce.db",saveAsTable="salseforce.transform_hive",SaveMode.Overwrite)
+    
+    salseforceToHiveConnector.stop()
+```
+
 ### Streaming source
 
 #### Kafka to FS Connector
@@ -1085,21 +1164,21 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 
 val streamTOHdfs=SpearConnector
-   .createConnector(name="StreamKafkaToPostgresconnector")
-   .source(sourceType = "stream",sourceFormat = "kafka")
-   .target(targetType = "FS",targetFormat = "parquet")
-   .getConnector
-   
+  .createConnector(name="StreamKafkaToPostgresconnector")
+  .source(sourceType = "stream",sourceFormat = "kafka")
+  .target(targetType = "FS",targetFormat = "parquet")
+  .getConnector
+
 val schema = StructType(
-    Array(StructField("id", StringType),
-      StructField("name", StringType)
-    ))
+  Array(StructField("id", StringType),
+    StructField("name", StringType)
+  ))
 
 streamTOHdfs
-    .source(sourceObject = "stream_topic",Map("kafka.bootstrap.servers"-> "kafka:9092","failOnDataLoss"->"true","startingOffsets"-> "earliest"),schema)
-    .saveAs("__tmp2__")
-    .transformSql("select cast (id as INT), name as __tmp2__")
-   .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.ora_data", SaveMode.Append)
+  .source(sourceObject = "stream_topic",Map("kafka.bootstrap.servers"-> "kafka:9092","failOnDataLoss"->"true","startingOffsets"-> "earliest"),schema)
+  .saveAs("__tmp2__")
+  .transformSql("select cast (id as INT), name as __tmp2__")
+  .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.ora_data", SaveMode.Append)
 
 streamTOHdfs.stop()
 ```
@@ -1260,9 +1339,9 @@ connector.stop()
 ## Contributions and License
 #### License
 Software Licensed under the [Apache License 2.0](LICENSE)
-#### Author         
- Anudeep Konaboina <krantianudeep@gmail.com>
-#### Contributor 
- Kayan Deshi <kalyan.mgit@gmail.com>
+#### Author
+Anudeep Konaboina <krantianudeep@gmail.com>
+#### Contributor
+Kayan Deshi <kalyan.mgit@gmail.com>
 
 

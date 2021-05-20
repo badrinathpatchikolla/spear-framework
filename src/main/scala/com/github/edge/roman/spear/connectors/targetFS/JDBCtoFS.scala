@@ -29,8 +29,12 @@ class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnect
 
   override def sourceSql(params: Map[String, String], sqlText: String): JDBCtoFS = {
     sourceFormat match {
-      case "soql" =>
-        SpearConnector.spark.read.format("com.springml.spark.salesforce").option("soql", s"$sqlText").options(params).load()
+      case "soql"|"saql" =>
+        if(sourceFormat.equals("soql")) {
+          SpearConnector.spark.read.format("com.springml.spark.salesforce").option("soql", s"$sqlText").options(params).load()
+        }else{
+          SpearConnector.spark.read.format("com.springml.spark.salesforce").option("saql", s"$sqlText").options(params).load()
+        }
       case _ =>
         val _df = SpearConnector.spark.read.format(sourceFormat).option("dbtable", s"($sqlText)temp").options(params).load()
         this.df = _df
