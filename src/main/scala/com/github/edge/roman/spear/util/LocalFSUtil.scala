@@ -43,7 +43,7 @@ class LocalFSUtil {
     try {
       size = FileUtils.getFile(remote).length()
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception =>exception.printStackTrace()
     }
     size
   }

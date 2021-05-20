@@ -24,7 +24,7 @@ class HDFSUtil {
       conf.set("fs.file.impl", classOf[LocalFileSystem].getName)
       fileSystem = FileSystem.get(conf)
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception =>exception.printStackTrace()
     }
   }
 
@@ -61,7 +61,7 @@ class HDFSUtil {
       val conf = new Configuration()
       IOUtils.copyBytes(fileStream, outPutStream, conf, true)
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
@@ -70,7 +70,7 @@ class HDFSUtil {
     try {
       size = fileSystem.getFileStatus(new Path(remote)).getLen
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception =>exception.printStackTrace()
     }
     size
   }

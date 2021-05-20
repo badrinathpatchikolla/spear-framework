@@ -22,7 +22,6 @@ class FStoFS(sourceFormat: String, destFormat: String) extends AbstractConnector
   private var size: Long = 0L
 
   override def source(sourceObject: String, params: Map[String, String]): FStoFS = {
-
     sourceFormat match {
       case "ftp" =>
         ftpUtil.configureClient(params)

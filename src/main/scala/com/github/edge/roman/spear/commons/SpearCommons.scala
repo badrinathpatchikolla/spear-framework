@@ -13,4 +13,5 @@ object SpearCommons {
   val FileSystem="FS"
   val Stream="stream"
   val SalesForceFormat="com.springml.spark.salesforce"
+  val FTP
 }

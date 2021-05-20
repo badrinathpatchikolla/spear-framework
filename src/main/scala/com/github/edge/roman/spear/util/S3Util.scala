@@ -38,7 +38,7 @@ class S3Util {
     try {
       amazonS3Client.putObject(bucket_name, remote, file)
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception =>exception.printStackTrace()
     }
   }
 

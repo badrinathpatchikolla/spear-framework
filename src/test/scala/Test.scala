@@ -1,4 +1,5 @@
 import com.github.edge.roman.spear.SpearConnector
+import com.github.edge.roman.spear.connectors.AbstractConnector
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.{Column, DataFrame, SaveMode}
 import org.scalatest._
@@ -17,19 +18,20 @@ class Test extends FunSuite with BeforeAndAfter {
   SpearConnector.spark.sparkContext.setLogLevel("ERROR")
 
   //connector logic
-  val csvJdbcConnector = SpearConnector
+  val csvJdbcConnector: AbstractConnector = SpearConnector
     .createConnector("CSVTOPOSTGRES")
     .source(sourceType = "file", sourceFormat = "csv")
     .target(targetType = "relational", targetFormat = "jdbc")
     .getConnector
+
   csvJdbcConnector.setVeboseLogging(true)
+
   csvJdbcConnector
     .source(sourceObject = "data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
     .saveAs("__tmp__")
     .targetJDBC(tableName = "test_table", properties, SaveMode.Overwrite)
 
   runTests(fileDF("data/us-election-2012-results-by-county.csv"), tableDf("test_table", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://localhost:5432/pgdb")), "csvtopostgresconnector")
-
 
   after {
     SpearConnector.spark.stop()
