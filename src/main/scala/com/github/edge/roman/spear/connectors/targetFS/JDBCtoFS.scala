@@ -3,7 +3,6 @@ package com.github.edge.roman.spear.connectors.targetFS
 import com.github.edge.roman.spear.commons.SpearCommons
 import com.github.edge.roman.spear.{Connector, SpearConnector}
 import com.github.edge.roman.spear.connectors.{AbstractConnector, TargetFSConnector}
-import org.apache.log4j.Logger
 import org.apache.spark.sql.{DataFrame, SaveMode}
 import org.apache.spark.sql.types.StructType
 

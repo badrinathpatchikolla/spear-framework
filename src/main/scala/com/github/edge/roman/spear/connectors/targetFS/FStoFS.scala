@@ -10,8 +10,6 @@ import java.io.InputStream
 
 
 class FStoFS(sourceFormat: String, destFormat: String) extends AbstractConnector with TargetFSConnector {
-  val logger: Logger = Logger.getLogger(this.getClass.getName)
-
   private val ftpUtil: FTPUtil = new FTPUtil
   private val s3Util: S3Util = new S3Util
   private val smbUtil: SMBUtil = new SMBUtil
