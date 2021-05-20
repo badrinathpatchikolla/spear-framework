@@ -34,9 +34,9 @@ class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends AbstractConne
       case "soql" | "saql" =>
         var _df: DataFrame = null
         if (sourceFormat.equals("soql")) {
-          _df = SpearConnector.spark.read.format("com.springml.spark.salesforce").option("soql", s"$sqlText").options(params).load()
+          _df = SpearConnector.spark.read.format(SpearCommons.SalesforceFormat).option("soql", s"$sqlText").options(params).load()
         } else {
-          _df=SpearConnector.spark.read.format("com.springml.spark.salesforce").option("saql", s"$sqlText").options(params).load()
+          _df=SpearConnector.spark.read.format(SpearCommons.SalesforceFormat).option("saql", s"$sqlText").options(params).load()
         }
         this.df=_df
       case _ =>
@@ -51,12 +51,12 @@ class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends AbstractConne
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
     destFormat match {
       case "soql" =>
-        this.df.write.format("com.springml.spark.salesforce")
+        this.df.write.format(SpearCommons.SalesforceFormat)
           .option("username", props.get("username").toString)
           .option("password", props.get("password").toString)
           .option("sfObject", tableName).save()
       case "saql" =>
-        this.df.write.format("com.springml.spark.salesforce")
+        this.df.write.format(SpearCommons.SalesforceFormat)
           .option("username", props.get("username").toString)
           .option("password", props.get("password").toString)
           .option("datasetName", tableName).save()

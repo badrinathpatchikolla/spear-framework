@@ -33,9 +33,9 @@ class JDBCtoFS(sourceFormat: String, destFormat: String) extends AbstractConnect
       case "soql" | "saql" =>
         var _df: DataFrame = null
         if (sourceFormat.equals("soql")) {
-          _df = SpearConnector.spark.read.format("com.springml.spark.salesforce").option("soql", s"$sqlText").options(params).load()
+          _df = SpearConnector.spark.read.format(SpearCommons.SalesforceFormat).option("soql", s"$sqlText").options(params).load()
         } else {
-          _df=SpearConnector.spark.read.format("com.springml.spark.salesforce").option("saql", s"$sqlText").options(params).load()
+          _df=SpearConnector.spark.read.format(SpearCommons.SalesforceFormat).option("saql", s"$sqlText").options(params).load()
         }
         this.df=_df
       case _ =>
