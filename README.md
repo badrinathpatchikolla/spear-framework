@@ -2,6 +2,7 @@
 [![Build Status](https://github.com/AnudeepKonaboina/spear-framework/workflows/spear-framework-build/badge.svg)](https://github.com/AnudeepKonaboina/spear-framework/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub tag](https://img.shields.io/github/v/release/AnudeepKonaboina/spear-framework)](https://GitHub.com/AnudeepKonaboina/spear-framework/tags/)
+![Code Quality Score](https://www.code-inspector.com/project/22855/score/svg)
 
 The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
@@ -146,38 +147,43 @@ The input data is available in the data/us-election-2012-results-by-county.csv
 ```scala
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.SaveMode
+import java.util.Properties
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
 
-Logger.getLogger("com.github").setLevel(Level.INFO)
 val properties = new Properties()
-properties.put("driver", "org.postgresql.Driver");
-properties.put("user", "postgres_user")
-properties.put("password", "mysecretpassword")
-properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
+  properties.put("driver", "org.postgresql.Driver");
+  properties.put("user", "postgres_user")
+  properties.put("password", "mysecretpassword")
+  properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
 
-//connector logic
+
 val csvJdbcConnector = SpearConnector
     .createConnector(name="CSVtoPostgresConnector")
     .source(sourceType = "file", sourceFormat = "csv")
     .target(targetType = "relational", targetFormat = "jdbc")
     .getConnector
+    
+//enable verbose logging i.e.., the output after every stage is displayed
+csvJdbcConnector.setVeboseLogging(true)
 
+//connector logic
 csvJdbcConnector
-  .source(sourceObject = "data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
+  .source(sourceObject="file:///opt/spear-framework/data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
   .saveAs("__tmp__")
   .transformSql(
     """select state_code,party,
       |sum(votes) as total_votes
       |from __tmp__
       |group by state_code,party""".stripMargin)
-  .targetJDBC(tableName = "pgdb.destination_us_elections", properties, SaveMode.Overwrite)
+  .targetJDBC(tableName="mytable", properties, SaveMode.Overwrite)
 csvJdbcConnector.stop()
 ```
 
 ##### Output:
 
 ```
-21/01/26 14:16:57 INFO FiletoJDBC: Data after reading from csv in path : data/us-election-2012-results-by-county.csv  
+
+21/05/20 16:17:37 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with format: csv status:success
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
 |country_id|state_code|country_name|country_total_votes|party|first_name|last_name|votes|
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
@@ -194,26 +200,11 @@ csvJdbcConnector.stop()
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
 only showing top 10 rows
 
-21/01/26 14:16:58 INFO FiletoJDBC: Data is saved as a temporary table by name: __tmp__
-21/01/26 14:16:58 INFO FiletoJDBC: select * from __tmp__
-+----------+----------+------------+-------------------+-----+----------+---------+-----+
-|country_id|state_code|country_name|country_total_votes|party|first_name|last_name|votes|
-+----------+----------+------------+-------------------+-----+----------+---------+-----+
-|1         |AK        |Alasaba     |220596             |Dem  |Barack    |Obama    |91696|
-|2         |AK        |Akaskak     |220596             |Dem  |Barack    |Obama    |91696|
-|3         |AL        |Autauga     |23909              |Dem  |Barack    |Obama    |6354 |
-|4         |AK        |Akaska      |220596             |Dem  |Barack    |Obama    |91696|
-|5         |AL        |Baldwin     |84988              |Dem  |Barack    |Obama    |18329|
-|6         |AL        |Barbour     |11459              |Dem  |Barack    |Obama    |5873 |
-|7         |AL        |Bibb        |8391               |Dem  |Barack    |Obama    |2200 |
-|8         |AL        |Blount      |23980              |Dem  |Barack    |Obama    |2961 |
-|9         |AL        |Bullock     |5318               |Dem  |Barack    |Obama    |4058 |
-|10        |AL        |Butler      |9483               |Dem  |Barack    |Obama    |4367 |
-+----------+----------+------------+-------------------+-----+----------+---------+-----+
-only showing top 10 rows
-
-
-21/01/26 14:16:59 INFO FiletoJDBC: Data after transformation using the SQL : select state_code,party,sum(votes) as total_votes from __tmp__ group by state_code,party
+21/05/20 16:17:39 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
+21/05/20 16:17:39 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select state_code,party,
+sum(votes) as total_votes
+from __tmp__
+group by state_code,party status :success
 +----------+-----+-----------+
 |state_code|party|total_votes|
 +----------+-----+-----------+
@@ -230,13 +221,11 @@ only showing top 10 rows
 +----------+-----+-----------+
 only showing top 10 rows
 
-21/01/26 14:17:02 INFO FiletoJDBC: Writing data to target table: pg_db.destination_us_elections
-21/01/26 14:17:12 INFO FiletoJDBC: Showing data in target table  : pg_db.destination_us_elections
+21/05/20 16:17:56 INFO targetjdbc.FiletoJDBC: Write data to table/object mytable completed with status:success
 +----------+-----+-----------+
 |state_code|party|total_votes|
 +----------+-----+-----------+
 |AL        |Dem  |793620     |
-|MN        |Grn  |13045      |
 |NY        |GOP  |2226637    |
 |MI        |CST  |16792      |
 |ID        |GOP  |420750     |
@@ -244,6 +233,7 @@ only showing top 10 rows
 |WA        |CST  |7772       |
 |HI        |Grn  |3121       |
 |MS        |RP   |969        |
+|MN        |Grn  |13045      |
 |ID        |Dem  |212560     |
 +----------+-----+-----------+
 only showing top 10 rows
@@ -256,8 +246,8 @@ The input data is available in the data/data.json
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
-import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
+import java.util.Properties
 
 //target props
 val properties = new Properties()
@@ -272,19 +262,20 @@ val jsonJdbcConnector = SpearConnector
   .target(targetType = "relational", targetFormat="jdbc")
   .getConnector
 
+jsonJdbcConnector.setVeboseLogging(true)
+
 jsonJdbcConnector
-  .source("data/data.json", Map("multiline" -> "true"))
+  .source("file:///opt/spear-framework/data/data.json", Map("multiline" -> "true"))
   .saveAs("__tmptable__")
   .transformSql("select cast(id*10 as integer) as type_id,type from __tmptable__ ")
-  .targetJDBC(tableName = "pg_db.json_to_jdbc", properties, SaveMode.Overwrite)
-
+  .targetJDBC(tableName = "json_to_jdbc", properties, SaveMode.Overwrite)
 jsonJdbcConnector.stop()
 ```
 
 ##### Output
 
 ```
-21/02/06 09:29:29 INFO FiletoJDBC: Data after reading from json file in path : data/data.json
+21/05/20 16:25:54 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/data.json with format: json status:success
 +----+------------------------+
 |id  |type                    |
 +----+------------------------+
@@ -297,21 +288,8 @@ jsonJdbcConnector.stop()
 |5004|Maple                   |
 +----+------------------------+
 
-21/02/06 09:29:31 INFO FiletoJDBC: Data is saved as a temporary table by name: __tmptable__
-21/02/06 09:29:31 INFO FiletoJDBC: select * from __tmptable__
-+----+------------------------+
-|id  |type                    |
-+----+------------------------+
-|5001|None                    |
-|5002|Glazed                  |
-|5005|Sugar                   |
-|5007|Powdered Sugar          |
-|5006|Chocolate with Sprinkles|
-|5003|Chocolate               |
-|5004|Maple                   |
-+----+------------------------+
-
-21/02/06 09:29:32 INFO FiletoJDBC: Data after transformation using the SQL : select cast(id*10 as integer) as type_id,type from __tmptable__ 
+21/05/20 16:25:55 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmptable__ success
+21/05/20 16:25:55 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select cast(id*10 as integer) as type_id,type from __tmptable__  status :success
 +-------+------------------------+
 |type_id|type                    |
 +-------+------------------------+
@@ -324,8 +302,7 @@ jsonJdbcConnector.stop()
 |50040  |Maple                   |
 +-------+------------------------+
 
-21/02/06 09:29:32 INFO FiletoJDBC: Writing data to target table: pg_db.json_to_jdbc
-21/02/06 09:29:33 INFO FiletoJDBC: Showing data in target table  : pg_db.json_to_jdbc
+21/05/20 16:25:58 INFO targetjdbc.FiletoJDBC: Write data to table/object json_to_jdbc completed with status:success
 +-------+------------------------+
 |type_id|type                    |
 +-------+------------------------+
@@ -337,6 +314,7 @@ jsonJdbcConnector.stop()
 |50030  |Chocolate               |
 |50040  |Maple                   |
 +-------+------------------------+
+
 ```
 
 #### XML to JDBC Connector
@@ -346,34 +324,36 @@ The input data is available in the data/data.xml
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
-import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.SaveMode
+import java.util.Properties
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
 
+//target props
 val properties = new Properties()
 properties.put("driver", "org.postgresql.Driver");
 properties.put("user", "postgres_user")
 properties.put("password", "mysecretpassword")
-properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
+properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
 
 val xmlJdbcConnector = SpearConnector
   .createConnector(name="JSONtoPostgresConnector")
   .source(sourceType = "file", sourceFormat = "xml")
   .target(targetType = "relational", targetFormat = "jdbc")
-  .withName(connectorName = "XMLtoJDBC")
   .getConnector
 
+xmlJdbcConnector.setVeboseLogging(true)
+
 xmlJdbcConnector
-  .source("data/data.xml", Map("rootTag" -> "employees", "rowTag" -> "details"))
+  .source("file:///opt/spear-framework/data/data.xml", Map("rootTag" -> "employees", "rowTag" -> "details"))
   .saveAs("tmp")
   .transformSql("select * from tmp ")
-  .targetJDBC(tableName="pg_db.xml_to_jdbc", properties, SaveMode.Overwrite)
+  .targetJDBC(tableName="xml_to_jdbc", properties, SaveMode.Overwrite)
 xmlJdbcConnector.stop()
 ```
 
 ##### Output
 
 ```
-21/02/06 12:35:17 INFO FiletoJDBC: Data after reading from xml file in path : data/data.xml
+21/05/20 16:30:31 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/data.xml with format: xml status:success
 +--------+--------+---------+--------+----+---------+
 |building|division|firstname|lastname|room|title    |
 +--------+--------+---------+--------+----+---------+
@@ -383,8 +363,8 @@ xmlJdbcConnector.stop()
 |305     |Computer|Deep     |Parekh  |14  |Designer |
 +--------+--------+---------+--------+----+---------+
 
-21/02/06 12:35:19 INFO FiletoJDBC: Data is saved as a temporary table by name: tmp
-21/02/06 12:35:19 INFO FiletoJDBC: select * from tmp
+21/05/20 16:30:32 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:tmp success
+21/05/20 16:30:32 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select * from tmp  status :success
 +--------+--------+---------+--------+----+---------+
 |building|division|firstname|lastname|room|title    |
 +--------+--------+---------+--------+----+---------+
@@ -394,18 +374,7 @@ xmlJdbcConnector.stop()
 |305     |Computer|Deep     |Parekh  |14  |Designer |
 +--------+--------+---------+--------+----+---------+
 
-21/02/06 12:35:20 INFO FiletoJDBC: Data after transformation using the SQL : select * from tmp 
-+--------+--------+---------+--------+----+---------+
-|building|division|firstname|lastname|room|title    |
-+--------+--------+---------+--------+----+---------+
-|301     |Computer|Shiv     |Mishra  |11  |Engineer |
-|303     |Computer|Yuh      |Datta   |2   |developer|
-|304     |Computer|Rahil    |Khan    |10  |Tester   |
-|305     |Computer|Deep     |Parekh  |14  |Designer |
-+--------+--------+---------+--------+----+---------+
-
-21/02/06 12:35:21 INFO FiletoJDBC: Writing data to target table: pg_db.xml_to_jdbc
-21/02/06 12:35:22 INFO FiletoJDBC: Showing data in target table  : pg_db.xml_to_jdbc
+21/05/20 16:30:36 INFO targetjdbc.FiletoJDBC: Write data to table/object xml_to_jdbc completed with status:success
 +--------+--------+---------+--------+----+---------+
 |building|division|firstname|lastname|room|title    |
 +--------+--------+---------+--------+----+---------+
@@ -435,25 +404,29 @@ properties.put("password", "pass")
 properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
 
 val avroJdbcConnector = SpearConnector
-  .createConnector(name="AvrotoPostgresConnector")
-  .source(sourceType="file", sourceFormat="avro")
-  .target(targetType="relational", targetFormat="jdbc")
-  .withName(connectorName ="AvrotoJdbcConnector" )
-  .getConnector
-
+    .createConnector(name = "AvrotoPostgresConnector")
+    .source(sourceType = "file", sourceFormat = "avro")
+    .target(targetType = "relational", targetFormat = "jdbc")
+    .getConnector
+avroJdbcConnector.setVeboseLogging(true)
 avroJdbcConnector
-  .source(sourceObject = "/user/hive/warehouse/sample_data.avro")
-  .saveAs("__tmp__")
-  .transformSql(
-    """select id,
-      |cast(concat(first_name ,' ', last_name) as VARCHAR(255)) as name,
-      |coalesce(gender,'NA') as gender,
-      |cast(country as VARCHAR(20)) as country,
-      |cast(salary as DOUBLE) as salary,email
-      |from __tmp__""".stripMargin)
-  .saveAs("__transformed_table__")
-  .transformSql("select id,name,country,email,salary from __transformed_table__ ")
-  .targetJDBC(tableName = "pgdb.avro_data", properties, SaveMode.Overwrite)
+    .source(sourceObject = "file:///opt/spear-framework/data/sample_data.avro")
+    .saveAs("__tmp__")
+    .transformSql(
+      """select id,
+        |cast(concat(first_name ,' ', last_name) as VARCHAR(255)) as name,
+        |coalesce(gender,'NA') as gender,
+        |cast(country as VARCHAR(20)) as country,
+        |cast(salary as DOUBLE) as salary,email
+        |from __tmp__""".stripMargin)
+    .saveAs("__transformed_table__")
+    .transformSql(
+      """
+        |select id,name,
+        |country,email,
+        |salary
+        |from __transformed_table__""".stripMargin)
+    .targetJDBC(tableName = "avro_data", properties, SaveMode.Overwrite)  
 
 avroJdbcConnector.stop()
 ```
@@ -461,7 +434,7 @@ avroJdbcConnector.stop()
 ##### Output
 
 ```
-21/02/07 08:35:25 INFO FiletoJDBC: Data after reading from avro file in path : data/sample_data.avro
+21/05/20 16:55:42 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/sample_data.avro with format: avro status:success
 +--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
 |registration_dttm   |id |first_name|last_name|email                   |gender|ip_address    |cc              |country               |birthdate |salary   |title                   |comments|
 +--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
@@ -478,30 +451,13 @@ avroJdbcConnector.stop()
 +--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
 only showing top 10 rows
 
-21/02/07 08:35:29 INFO FiletoJDBC: Data is saved as a temporary table by name: __tmp__
-21/02/07 08:35:29 INFO FiletoJDBC: showing saved data from temporary table with name: __tmp__
-+--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
-|registration_dttm   |id |first_name|last_name|email                   |gender|ip_address    |cc              |country               |birthdate |salary   |title                   |comments|
-+--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
-|2016-02-03T07:55:29Z|1  |Amanda    |Jordan   |ajordan0@com.com        |Female|1.197.201.2   |6759521864920116|Indonesia             |3/8/1971  |49756.53 |Internal Auditor        |1E+02   |
-|2016-02-03T17:04:03Z|2  |Albert    |Freeman  |afreeman1@is.gd         |Male  |218.111.175.34|null            |Canada                |1/16/1968 |150280.17|Accountant IV           |        |
-|2016-02-03T01:09:31Z|3  |Evelyn    |Morgan   |emorgan2@altervista.org |Female|7.161.136.94  |6767119071901597|Russia                |2/1/1960  |144972.51|Structural Engineer     |        |
-|2016-02-03T12:36:21Z|4  |Denise    |Riley    |driley3@gmpg.org        |Female|140.35.109.83 |3576031598965625|China                 |4/8/1997  |90263.05 |Senior Cost Accountant  |        |
-|2016-02-03T05:05:31Z|5  |Carlos    |Burns    |cburns4@miitbeian.gov.cn|      |169.113.235.40|5602256255204850|South Africa          |          |null     |                        |        |
-|2016-02-03T07:22:34Z|6  |Kathryn   |White    |kwhite5@google.com      |Female|195.131.81.179|3583136326049310|Indonesia             |2/25/1983 |69227.11 |Account Executive       |        |
-|2016-02-03T08:33:08Z|7  |Samuel    |Holmes   |sholmes6@foxnews.com    |Male  |232.234.81.197|3582641366974690|Portugal              |12/18/1987|14247.62 |Senior Financial Analyst|        |
-|2016-02-03T06:47:06Z|8  |Harry     |Howell   |hhowell7@eepurl.com     |Male  |91.235.51.73  |null            |Bosnia and Herzegovina|3/1/1962  |186469.43|Web Developer IV        |        |
-|2016-02-03T03:52:53Z|9  |Jose      |Foster   |jfoster8@yelp.com       |Male  |132.31.53.61  |null            |South Korea           |3/27/1992 |231067.84|Software Test Engineer I|1E+02   |
-|2016-02-03T18:29:47Z|10 |Emily     |Stewart  |estewart9@opensource.org|Female|143.28.251.245|3574254110301671|Nigeria               |1/28/1997 |27234.28 |Health Coach IV         |        |
-+--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
-only showing top 10 rows
-
-21/02/07 08:35:29 INFO FiletoJDBC: Data after transformation using the SQL : select id,
+21/05/20 16:55:43 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
+21/05/20 16:55:43 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select id,
 cast(concat(first_name ,' ', last_name) as VARCHAR(255)) as name,
 coalesce(gender,'NA') as gender,
 cast(country as VARCHAR(20)) as country,
 cast(salary as DOUBLE) as salary,email
-from __tmp__
+from __tmp__ status :success
 +---+--------------+------+----------------------+---------+------------------------+
 |id |name          |gender|country               |salary   |email                   |
 +---+--------------+------+----------------------+---------+------------------------+
@@ -518,25 +474,12 @@ from __tmp__
 +---+--------------+------+----------------------+---------+------------------------+
 only showing top 10 rows
 
-21/02/07 08:35:30 INFO FiletoJDBC: Data is saved as a temporary table by name: __transformed_table__
-21/02/07 08:35:30 INFO FiletoJDBC: showing saved data from temporary table with name: __transformed_table__
-+---+--------------+------+----------------------+---------+------------------------+
-|id |name          |gender|country               |salary   |email                   |
-+---+--------------+------+----------------------+---------+------------------------+
-|1  |Amanda Jordan |Female|Indonesia             |49756.53 |ajordan0@com.com        |
-|2  |Albert Freeman|Male  |Canada                |150280.17|afreeman1@is.gd         |
-|3  |Evelyn Morgan |Female|Russia                |144972.51|emorgan2@altervista.org |
-|4  |Denise Riley  |Female|China                 |90263.05 |driley3@gmpg.org        |
-|5  |Carlos Burns  |      |South Africa          |null     |cburns4@miitbeian.gov.cn|
-|6  |Kathryn White |Female|Indonesia             |69227.11 |kwhite5@google.com      |
-|7  |Samuel Holmes |Male  |Portugal              |14247.62 |sholmes6@foxnews.com    |
-|8  |Harry Howell  |Male  |Bosnia and Herzegovina|186469.43|hhowell7@eepurl.com     |
-|9  |Jose Foster   |Male  |South Korea           |231067.84|jfoster8@yelp.com       |
-|10 |Emily Stewart |Female|Nigeria               |27234.28 |estewart9@opensource.org|
-+---+--------------+------+----------------------+---------+------------------------+
-only showing top 10 rows
-
-21/02/07 08:35:30 INFO FiletoJDBC: Data after transformation using the SQL : select id,name,country,email,salary from __transformed_table__ 
+21/05/20 16:55:45 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__transformed_table__ success
+21/05/20 16:55:45 INFO targetjdbc.FiletoJDBC: Executing tranformation sql:
+select id,name,
+country,email,
+salary
+from __transformed_table__ status :success
 +---+--------------+----------------------+------------------------+---------+
 |id |name          |country               |email                   |salary   |
 +---+--------------+----------------------+------------------------+---------+
@@ -553,8 +496,7 @@ only showing top 10 rows
 +---+--------------+----------------------+------------------------+---------+
 only showing top 10 rows
 
-21/02/07 08:35:31 INFO FiletoJDBC: Writing data to target table: pg_db.company_data
-21/02/07 08:35:32 INFO FiletoJDBC: Showing data in target table  : pg_db.company_data
+21/05/20 16:55:48 INFO targetjdbc.FiletoJDBC: Write data to table/object avro_data completed with status:success
 +---+--------------+----------------------+------------------------+---------+
 |id |name          |country               |email                   |salary   |
 +---+--------------+----------------------+------------------------+---------+
@@ -596,10 +538,10 @@ val parquetJdbcConnector = SpearConnector
   .getConnector
 
 parquetJdbcConnector
-  .source("data/sample.parquet")
+  .source("file:///opt/spear-framework/data/sample.parquet")
   .saveAs("__tmp__")
   .transformSql("""select flow1,occupancy1,speed1 from __tmp__""")
-  .targetJDBC(tableName="pg_db.user_data", properties, SaveMode.Overwrite)
+  .targetJDBC(tableName="user_data", properties, SaveMode.Overwrite
 
 parquetJdbcConnector.stop()
 ```
@@ -607,75 +549,11 @@ parquetJdbcConnector.stop()
 ### Output
 
 ```
-21/02/07 09:11:28 INFO FiletoJDBC: Data after reading from parquet file in path : data/sample3.parquet
-+-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
-|timeperiod         |flow1|occupancy1|speed1|flow2|occupancy2|speed2|flow3|occupancy3|speed3|flow4|occupancy4|speed4|flow5|occupancy5|speed5|flow6|occupancy6|speed6|flow7|occupancy7|speed7|flow8|occupancy8|speed8|
-+-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
-|09/24/2016 00:00:11|2    |0.01      |78.0  |1    |0.01      |71.0  |3    |0.02      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:00:41|2    |0.01      |71.0  |6    |0.04      |71.0  |2    |0.04      |65.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:01:11|1    |0.01      |71.0  |0    |0.0       |0.0   |2    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:01:41|5    |0.03      |78.0  |4    |0.03      |65.0  |4    |0.04      |65.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:02:11|4    |0.02      |78.0  |1    |0.01      |65.0  |1    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:02:41|2    |0.01      |78.0  |5    |0.03      |71.0  |1    |0.01      |78.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:03:11|1    |0.01      |71.0  |2    |0.01      |71.0  |2    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:03:41|3    |0.01      |78.0  |2    |0.01      |71.0  |2    |0.04      |65.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:04:11|0    |0.0       |0.0   |5    |0.03      |71.0  |0    |0.0       |0.0   |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:04:41|1    |0.0       |86.0  |3    |0.02      |78.0  |2    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-+-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
-only showing top 10 rows
+21/05/20 17:00:09 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/sample.parquet with format: parquet status:success
+21/05/20 17:00:09 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
+21/05/20 17:00:09 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select flow1,occupancy1,speed1 from __tmp__ status :success
+21/05/20 17:00:16 INFO targetjdbc.FiletoJDBC: Write data to table/object user_data completed with status:success
 
-21/02/07 09:11:32 INFO FiletoJDBC: Data is saved as a temporary table by name: __tmp__
-21/02/07 09:11:32 INFO FiletoJDBC: showing saved data from temporary table with name: __tmp__
-+-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
-|timeperiod         |flow1|occupancy1|speed1|flow2|occupancy2|speed2|flow3|occupancy3|speed3|flow4|occupancy4|speed4|flow5|occupancy5|speed5|flow6|occupancy6|speed6|flow7|occupancy7|speed7|flow8|occupancy8|speed8|
-+-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
-|09/24/2016 00:00:11|2    |0.01      |78.0  |1    |0.01      |71.0  |3    |0.02      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:00:41|2    |0.01      |71.0  |6    |0.04      |71.0  |2    |0.04      |65.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:01:11|1    |0.01      |71.0  |0    |0.0       |0.0   |2    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:01:41|5    |0.03      |78.0  |4    |0.03      |65.0  |4    |0.04      |65.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:02:11|4    |0.02      |78.0  |1    |0.01      |65.0  |1    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:02:41|2    |0.01      |78.0  |5    |0.03      |71.0  |1    |0.01      |78.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:03:11|1    |0.01      |71.0  |2    |0.01      |71.0  |2    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:03:41|3    |0.01      |78.0  |2    |0.01      |71.0  |2    |0.04      |65.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:04:11|0    |0.0       |0.0   |5    |0.03      |71.0  |0    |0.0       |0.0   |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-|09/24/2016 00:04:41|1    |0.0       |86.0  |3    |0.02      |78.0  |2    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
-+-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
-only showing top 10 rows
-
-21/02/07 09:11:32 INFO FiletoJDBC: Data after transformation using the SQL : select flow1,occupancy1,speed1 from __tmp__
-+-----+----------+------+
-|flow1|occupancy1|speed1|
-+-----+----------+------+
-|2    |0.01      |78.0  |
-|2    |0.01      |71.0  |
-|1    |0.01      |71.0  |
-|5    |0.03      |78.0  |
-|4    |0.02      |78.0  |
-|2    |0.01      |78.0  |
-|1    |0.01      |71.0  |
-|3    |0.01      |78.0  |
-|0    |0.0       |0.0   |
-|1    |0.0       |86.0  |
-+-----+----------+------+
-only showing top 10 rows
-
-21/02/07 09:11:33 INFO FiletoJDBC: Writing data to target table: pg_db.user_data
-21/02/07 09:11:34 INFO FiletoJDBC: Showing data in target table  : pg_db.user_data
-+-----+----------+------+
-|flow1|occupancy1|speed1|
-+-----+----------+------+
-|2    |0.01      |78.0  |
-|2    |0.01      |71.0  |
-|1    |0.01      |71.0  |
-|5    |0.03      |78.0  |
-|4    |0.02      |78.0  |
-|2    |0.01      |78.0  |
-|1    |0.01      |71.0  |
-|3    |0.01      |78.0  |
-|0    |0.0       |0.0   |
-|1    |0.0       |86.0  |
-+-----+----------+------+
-only showing top 10 rows
 ```
 
 ### JDBC source
@@ -701,6 +579,8 @@ val oracleTOPostgresConnector = SpearConnector
   .source(sourceType = "relational", sourceFormat = "jdbc")
   .target(targetType = "relational", targetFormat = "jdbc")
   .getConnector
+
+oracleTOPostgresConnector.setVeboseLogging(true)
 
 oracleTOPostgresConnector
   .sourceSql(Map("driver" -> "oracle.jdbc.driver.OracleDriver", "user" -> "user", "password" -> "pass", "url" -> "jdbc:oracle:thin:@ora-host:1521:orcl"),
@@ -737,6 +617,8 @@ oracleTOPostgresConnector
       |        from __source__
       |""".stripMargin)
   .targetJDBC(tableName = "pgdb.ora_to_postgres", properties, SaveMode.Overwrite)
+
+oracleTOPostgresConnector.stop()
 
 ```
 
@@ -879,6 +761,8 @@ val postgresToHiveConnector = SpearConnector
   .source(sourceType = "relational", sourceFormat = "jdbc")
   .target(targetType = "FS", targetFormat = "parquet")
   .getConnector
+  
+postgresToHiveConnector.setVeboseLogging(true)  
 
 postgresToHiveConnector
   .source("source_db.instance", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres", "password" -> "test", "url" -> "jdbc:postgresql://postgres-host:5433/source_db"))
@@ -1000,7 +884,7 @@ val oraToHiveConnector = SpearConnector.init
   .target(targetType = "FS", targetFormat = "parquet")
   .getConnector
 
-
+oraToHiveConnector.setVeboseLogging(true)
 oraToHiveConnector
 .sourceSql(Map("driver" -> "oracle.jdbc.driver.OracleDriver", "user" -> "user", "password" -> "pass", "url" -> "jdbc:oracle:thin:@ora-host:1521:orcl"),
   """
@@ -1203,6 +1087,7 @@ val oracleTOS3Connector = SpearConnector.init
   .target(targetType = "FS", targetFormat = "parquet")
   .withName(connectorName ="OracleToS3Connector" )
   .getConnector
+oracleTOS3Connector.setVeboseLogging(true)  
 oracleTOS3Connector
   .sourceSql(Map("driver" -> "oracle.jdbc.driver.OracleDriver", "user" -> "user", "password" -> "pass", "url" -> "jdbc:oracle:thin:@ora-host:1521:orcl"),
     """
@@ -1297,7 +1182,7 @@ val connector = SpearConnector
   .createConnector(name="defaultconnector")//name of the connector(any name)
   .source(sourceType = "relational", sourceFormat = "jdbc")//source type and format for loading data
   .target(targetType = "FS", targetFormat = "parquet")//target type and format for writing data to dest.
-  .getConnector
+  .getConnector 
 ```
 Below are the source and destination type combinations that spear-framework supports:
 ```commandline
@@ -1309,7 +1194,7 @@ Below are the source and destination type combinations that spear-framework supp
 | file        |  FS           |connector object with file source and FileSystem as dest.   |
 | relational  |  FS           |connector object with database source and FileSystem as dest|
 | stream      |  FS           |connector object with stream source and FileSystem as dest. |
-
+| FS          |  FS           |connector object with FileS  source and FileSystem as dest. |
 ```
 
 
@@ -1333,6 +1218,14 @@ connector
 //stops the connector object
 connector.stop()
 ```
+
+4. Enable verbose logging 
+To get the output df at each stage of your connector you can explicitly enable verbose logging as below on top of connector object.
+
+```commandline
+connector.setVeboseLogging(true) //default value is false.
+```
+
 
 ## Contributions and License
 #### License
