@@ -1,20 +1,20 @@
 package com.github.edge.roman.spear.connectors.targetFS
 
 import com.github.edge.roman.spear.{Connector, SpearConnector}
-import com.github.edge.roman.spear.connectors.TargetFSConnector
+import com.github.edge.roman.spear.connectors.{AbstractConnector, TargetFSConnector}
 import org.apache.spark.sql.functions.from_json
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
 import java.util.Properties
 
-class StreamtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnector {
+class StreamtoFS(sourceFormat: String, destFormat: String)  extends AbstractConnector with TargetFSConnector  {
 
   import SpearConnector.spark.implicits._
 
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
     sourceFormat match {
-      case "kafka" => {
+      case "kafka" =>
         val _df = SpearConnector.spark
           .readStream
           .format(sourceFormat)
@@ -25,8 +25,7 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends TargetFSConne
           .select(from_json($"value", schema).as("data"))
           .select("data.*")
         this.df = _df
-      }
-      case _ => {
+      case _ =>
         val _df = SpearConnector.spark
           .readStream
           .format(sourceFormat)
@@ -34,7 +33,7 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends TargetFSConne
           .options(params)
           .load(sourceObject + "/*." + sourceFormat)
         this.df = _df
-      }
+
     }
     this
   }
@@ -84,7 +83,4 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends TargetFSConne
   }
 
   override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = ???
-
-  override def targetFS(destinationFilePath: String): Unit = ???
-
 }

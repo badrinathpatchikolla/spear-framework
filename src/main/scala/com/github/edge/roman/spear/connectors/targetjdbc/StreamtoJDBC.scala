@@ -1,14 +1,15 @@
 package com.github.edge.roman.spear.connectors.targetjdbc
 
 import com.github.edge.roman.spear.{Connector, SpearConnector}
-import com.github.edge.roman.spear.connectors.TargetJDBCConnector
+import com.github.edge.roman.spear.connectors.{AbstractConnector, TargetJDBCConnector}
 import org.apache.spark.sql.functions.from_json
 import org.apache.spark.sql.{DataFrame, SaveMode}
 import org.apache.spark.sql.types.StructType
 import SpearConnector.spark.implicits._
+
 import java.util.Properties
 
-class StreamtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector {
+class StreamtoJDBC(sourceFormat: String, destFormat: String) extends AbstractConnector with TargetJDBCConnector {
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
     sourceFormat match {
       case "kafka" =>

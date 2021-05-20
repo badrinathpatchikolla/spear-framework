@@ -1,13 +1,14 @@
 package com.github.edge.roman.spear.connectors.targetjdbc
 
+import com.github.edge.roman.spear.commons.SpearCommons
 import com.github.edge.roman.spear.{Connector, SpearConnector}
-import com.github.edge.roman.spear.connectors.TargetJDBCConnector
-import org.apache.spark.sql.SaveMode
+import com.github.edge.roman.spear.connectors.{AbstractConnector, TargetJDBCConnector}
+import org.apache.spark.sql.{DataFrame, SaveMode}
 import org.apache.spark.sql.types.StructType
 
 import java.util.Properties
 
-class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector {
+class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends AbstractConnector with TargetJDBCConnector {
 
 
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
@@ -17,33 +18,33 @@ class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCCon
 
   override def source(tableName: String, params: Map[String, String]): JDBCtoJDBC = {
     sourceFormat match {
-      case "soql"|"saql" =>
-        throw new Exception(tableName +"object cannot be loaded directly...instead use sourceSql function with soql query")
+      case "soql" | "saql" =>
+        throw new NoSuchMethodException(s"Salesforce object ${tableName} cannot be loaded directly.Instead use sourceSql function with soql/saql query to load the data")
       case _ =>
         val df = SpearConnector.spark.read.format(sourceFormat).option("dbtable", tableName).options(params).load()
         this.df = df
     }
+    logger.info(s"Reading source table: ${tableName} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    if (this.verboseLogging)this.df.show(10, false)
     this
   }
 
   override def sourceSql(params: Map[String, String], sqlText: String): JDBCtoJDBC = {
     sourceFormat match {
-      case "soql"|"saql" =>
-        if(sourceFormat.equals("soql")) {
-          SpearConnector.spark.read.format("com.springml.spark.salesforce").option("soql", s"$sqlText").options(params).load()
-        }else{
-          SpearConnector.spark.read.format("com.springml.spark.salesforce").option("saql", s"$sqlText").options(params).load()
+      case "soql" | "saql" =>
+        var _df: DataFrame = null
+        if (sourceFormat.equals("soql")) {
+          _df = SpearConnector.spark.read.format("com.springml.spark.salesforce").option("soql", s"$sqlText").options(params).load()
+        } else {
+          _df=SpearConnector.spark.read.format("com.springml.spark.salesforce").option("saql", s"$sqlText").options(params).load()
         }
-          case _ =>
+        this.df=_df
+      case _ =>
         val _df = SpearConnector.spark.read.format(sourceFormat).option("dbtable", s"($sqlText)temp").options(params).load()
         this.df = _df
     }
-    this
-  }
-
-  override def transformSql(sqlText: String): JDBCtoJDBC = {
-    val _df = this.df.sqlContext.sql(sqlText)
-    this.df = _df
+    logger.info(s"Executing source query: ${sqlText} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    if (this.verboseLogging)this.df.show(10, false)
     this
   }
 
@@ -61,18 +62,15 @@ class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCCon
           .option("datasetName", tableName).save()
       case _ =>
         this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
-        showTargetData(tableName: String, props: Properties)
     }
-  }
-
-  def showTargetData(tableName: String, props: Properties): Unit = {
-    SpearConnector.spark.read.jdbc(props.get("url").toString, tableName, props).show(10, false)
+    logger.info(s"Write data to table/object ${tableName} completed with status:${SpearCommons.SuccessStatus} ")
+    if (this.verboseLogging) this.df.show(10, false)
   }
 
 
   override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = {
     this.df.createOrReplaceTempView("TEMP")
-      this.df.write.mode(saveMode)
+    this.df.write.mode(saveMode)
       .jdbc(props.get("url").toString, "TEMP", props)
   }
 }
