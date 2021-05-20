@@ -23,6 +23,8 @@ class Test extends FunSuite with BeforeAndAfter {
     .target(targetType = "relational", targetFormat = "jdbc")
     .getConnector
 
+  csvJdbcConnector.setVeboseLogging(true)
+
   csvJdbcConnector
     .source(sourceObject = "data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
     .saveAs("__tmp__")
@@ -37,7 +39,7 @@ class Test extends FunSuite with BeforeAndAfter {
 
 
   def fileDF(fileName: String): DataFrame = {
-      SpearConnector.spark.read.options(Map("header" -> "true", "inferSchema" -> "true")).csv(fileName)
+    SpearConnector.spark.read.options(Map("header" -> "true", "inferSchema" -> "true")).csv(fileName)
   }
 
   def tableDf(tableName: String, params: Map[String, String]): DataFrame = {

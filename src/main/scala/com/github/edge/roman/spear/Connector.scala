@@ -22,5 +22,13 @@ trait Connector {
   def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit
 
   def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit
+
+  def saveAs(alias: String): Connector
+
+  def cacheData(): Connector
+
+  def repartition(n: Int): Connector
+
+  def coalesce(n: Int): Connector
 }
 
