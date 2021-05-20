@@ -11,7 +11,7 @@ abstract class AbstractConnector extends Connector {
   var verboseLogging: Boolean = false
 
   def setVeboseLogging(enable: Boolean): Unit = {
-    this.verboseLogging = verboseLogging
+    this.verboseLogging = enable
   }
 
   def saveAs(alias: String): Connector = {

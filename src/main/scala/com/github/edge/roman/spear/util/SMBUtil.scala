@@ -14,8 +14,7 @@ import scala.util.Try
 
 class SMBUtil {
 
-
-  var diskShare: DiskShare = null
+  var diskShare: DiskShare = _
 
   def configureClient(configMap: Map[String, String]): Try[Unit] = Try {
     try {
@@ -30,23 +29,21 @@ class SMBUtil {
       val session: Session = smbCon.authenticate(ac)
       diskShare = session.connectShare(share).asInstanceOf[DiskShare]
     } catch {
-      case e: Exception => print(e)
+      case e: Exception => e.printStackTrace()
     }
 
   }
 
   def downloadFile(remote: String): InputStream = {
-    var stream: InputStream = null
     try {
       val file: com.hierynomus.smbj.share.File = diskShare
         .openFile(remote, util.EnumSet.of(AccessMask.GENERIC_READ), null, SMB2ShareAccess.ALL,
           SMB2CreateDisposition.FILE_OPEN,
           null)
-      stream = file.getInputStream()
+     file.getInputStream()
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => throw new Exception(exception)
     }
-    stream
   }
 
   def getSize(remote: String): Long = {
@@ -58,7 +55,7 @@ class SMBUtil {
           null)
       size = file.getFileInformation().getStandardInformation.getEndOfFile
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
     size
   }

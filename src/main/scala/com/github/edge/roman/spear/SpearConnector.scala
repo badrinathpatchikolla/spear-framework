@@ -38,13 +38,13 @@ object SpearConnector {
 
     def getConnector: AbstractConnector = {
       (sourceType, destType) match {
-        case ("file", "relational") => new FiletoJDBC(sourceFormat, destFormat)
-        case ("relational", "relational") => new JDBCtoJDBC(sourceFormat, destFormat)
-        case ("stream", "relational") => new StreamtoJDBC(sourceFormat, destFormat)
-        case ("file", "FS") => new FiletoFS(sourceFormat, destFormat)
-        case ("relational", "FS") => new JDBCtoFS(sourceFormat, destFormat)
-        case ("stream", "FS") => new StreamtoFS(sourceFormat, destFormat)
-        case ("FS", "FS") => new FiletoFS(sourceFormat, destFormat)
+        case (SpearCommons.File, SpearCommons.Relational) => new FiletoJDBC(sourceFormat, destFormat)
+        case (SpearCommons.Relational, SpearCommons.Relational) => new JDBCtoJDBC(sourceFormat, destFormat)
+        case (SpearCommons.Stream, SpearCommons.Relational) => new StreamtoJDBC(sourceFormat, destFormat)
+        case (SpearCommons.File, SpearCommons.FileSystem) => new FiletoFS(sourceFormat, destFormat)
+        case (SpearCommons.Relational, SpearCommons.FileSystem) => new JDBCtoFS(sourceFormat, destFormat)
+        case (SpearCommons.Stream, SpearCommons.FileSystem) => new StreamtoFS(sourceFormat, destFormat)
+        case (SpearCommons.FileSystem, SpearCommons.FileSystem) => new FiletoFS(sourceFormat, destFormat)
         case (_, _) => throw new Exception(SpearCommons.InvalidParams)
       }
     }

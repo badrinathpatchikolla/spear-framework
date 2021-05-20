@@ -8,10 +8,10 @@ import java.io.{File, FileInputStream, InputStream}
 
 class ADLSUtil {
 
-  var containerName: String = null
+  var containerName: String = _
   val defaultEndpointsProtocol: String = "https"
-  var container: CloudBlobContainer = null
-  var blobClient: CloudBlobClient = null
+  var container: CloudBlobContainer = _
+  var blobClient: CloudBlobClient = _
 
   def configureClient(configMap: Map[String, String]): Unit = {
     try {
@@ -23,20 +23,18 @@ class ADLSUtil {
       blobClient = storageAccount.createCloudBlobClient();
       container = blobClient.getContainerReference(containerName)
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
   def downloadFile(remote: String): InputStream = {
-    var stream: InputStream = null
     try {
       val blob = container.getBlockBlobReference(remote)
       blob.getProperties.getLength
-      stream = blob.openInputStream()
+      blob.openInputStream()
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => throw new Exception(exception)
     }
-    stream
   }
 
   def uploadFile(remote: String, file: File): Unit = {
@@ -47,10 +45,10 @@ class ADLSUtil {
       val next = -1
       while (fileStream.read != -1)
         blobOutputStream.write(next)
-      blobOutputStream.close
+      blobOutputStream.close()
       fileStream.close()
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
@@ -60,7 +58,7 @@ class ADLSUtil {
       val blob = container.getBlockBlobReference(remote)
       blob.upload(fileStream, size)
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
@@ -70,7 +68,7 @@ class ADLSUtil {
       val blob = container.getBlockBlobReference(remote)
       size = blob.getProperties.getLength
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
     size
   }

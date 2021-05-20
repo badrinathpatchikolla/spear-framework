@@ -8,4 +8,9 @@ object SpearCommons {
   val SuccessStatus="success"
   val FailedStatus="failed"
   val Default="Default-spear-connector"
+  val Relational="relational"
+  val File="file"
+  val FileSystem="FS"
+  val Stream="stream"
+  val SalesForceFormat="com.springml.spark.salesforce"
 }

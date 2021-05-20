@@ -8,16 +8,14 @@ class LocalFSUtil {
 
 
   def downloadFile(remote: String): InputStream = {
-    var stream: InputStream = null
     try {
-      stream = new FileInputStream(new File(remote))
+      new FileInputStream(new File(remote))
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => throw new Exception(exception)
     }
-    stream
   }
 
-  def uploadFile(remote: String, file: File):Unit = {
+  def uploadFile(remote: String, file: File): Unit = {
     try {
       val outputStream: OutputStream = new FileOutputStream(new File(remote))
       val inputStream: InputStream = new FileInputStream(file)
@@ -25,18 +23,18 @@ class LocalFSUtil {
       outputStream.close()
       inputStream.close()
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
-  def uploadFile(remote: String, size: Long, fileStream: InputStream):Unit = {
+  def uploadFile(remote: String, size: Long, fileStream: InputStream): Unit = {
     try {
       val outputStream: OutputStream = new FileOutputStream(new File(remote))
       IOUtils.copy(fileStream, outputStream)
       outputStream.close()
       fileStream.close()
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 

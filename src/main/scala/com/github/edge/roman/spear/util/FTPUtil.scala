@@ -17,7 +17,7 @@ class FTPUtil() {
       client.connect(host)
       client.enterLocalPassiveMode()
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
 
   }
@@ -31,7 +31,7 @@ class FTPUtil() {
       client.enterLocalPassiveMode()
       client.login(userName, password)
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
@@ -47,7 +47,7 @@ class FTPUtil() {
       client.completePendingCommand()
       stream
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
     stream
   }
@@ -63,7 +63,7 @@ class FTPUtil() {
         size = ftpFile.getSize
       }
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
     size
   }

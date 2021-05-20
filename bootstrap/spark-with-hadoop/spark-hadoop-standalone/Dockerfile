@@ -32,9 +32,9 @@ RUN echo "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk" >> /usr/bin/hadoop-$
 
 # create folders for nodes
 RUN mkdir -p /usr/bin/data/nameNode /usr/bin/data/dataNode /usr/bin/data/nameNodeSecondary /usr/bin/data/tmp /usr/bin/hadoop-${hadoop_version}/logs
-ADD configs/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
-ADD configs/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
-ADD configs/mapred-site.xml $HADOOP_HOME/etc/hadoop/mapred-site.xml
+COPY configs/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
+COPY configs/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+COPY configs/mapred-site.xml $HADOOP_HOME/etc/hadoop/mapred-site.xml
 ################################################ Hadoop client install end ###################################################
 
 
@@ -52,7 +52,7 @@ ENV SPARK_HOME /usr/bin/spark-${spark_version}-bin-without-hadoop
 ENV SPARK_LOG_DIR /usr/bin/spark-${spark_version}-bin-without-hadoop/logs
 ENV PATH $SPARK_HOME/bin:$SPARK_HOME/sbin:/root:$PATH
 
-ADD configs/spear-shell.sh /root/spear-shell.sh
+COPY configs/spear-shell.sh /root/spear-shell.sh
 
 RUN export SPARK_DIST_CLASSPATH=$(hadoop classpath) 
 RUN mv /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-env.sh.template /usr/bin/spark-${spark_version}-bin-without-hadoop/conf/spark-env.sh && \
@@ -75,7 +75,7 @@ RUN curl  https://archive.apache.org/dist/hive/hive-${hive_version}/apache-hive-
 # set Hive environment variables
 ENV HIVE_HOME /usr/bin/apache-hive-${hive_version}-bin
 ENV PATH $HIVE_HOME/bin:$PATH
-ADD configs/hive-site.xml $HIVE_HOME/conf/hive-site.xml
+COPY configs/hive-site.xml $HIVE_HOME/conf/hive-site.xml
 RUN cp /usr/share/java/postgresql-jdbc3.jar /usr/bin/apache-hive-${hive_version}-bin/lib/ && \
     cp $HIVE_HOME/conf/hive-site.xml $SPARK_HOME/conf/ && \
     echo "export HADOOP_HOME=/usr/bin/hadoop-${hadoop_version}" >> /usr/bin/hadoop-${hadoop_version}/bin/hive-config.sh
@@ -84,7 +84,7 @@ RUN cp /usr/share/java/postgresql-jdbc3.jar /usr/bin/apache-hive-${hive_version}
 RUN ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N "" && \
  cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys
 
-ADD configs/config /usr/bin/config
+COPY configs/config /usr/bin/config
 RUN mv /usr/bin/config $HOME/.ssh/ && chmod 600 $HOME/.ssh/config
 
 ##################################################### hive installtion end ####################################################

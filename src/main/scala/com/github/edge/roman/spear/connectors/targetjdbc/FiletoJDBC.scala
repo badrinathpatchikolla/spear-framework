@@ -4,7 +4,6 @@ import com.databricks.spark.xml.XmlDataFrameReader
 import com.github.edge.roman.spear.SpearConnector
 import com.github.edge.roman.spear.commons.SpearCommons
 import com.github.edge.roman.spear.connectors.{AbstractConnector, TargetJDBCConnector}
-import org.apache.log4j.Logger
 import org.apache.spark.sql.SaveMode
 import org.apache.spark.sql.types.StructType
 
@@ -46,12 +45,12 @@ class FiletoJDBC(sourceFormat: String, destFormat: String)  extends AbstractConn
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
     destFormat match {
       case "soql" =>
-        this.df.write.format("com.springml.spark.salesforce")
+        this.df.write.format(SpearCommons.SalesForceFormat)
           .option("username", props.get("username").toString)
           .option("password", props.get("password").toString)
           .option("sfObject", tableName).save()
       case "saql" =>
-        this.df.write.format("com.springml.spark.salesforce")
+        this.df.write.format(SpearCommons.SalesForceFormat)
           .option("username", props.get("username").toString)
           .option("password", props.get("password").toString)
           .option("datasetName", tableName).save()

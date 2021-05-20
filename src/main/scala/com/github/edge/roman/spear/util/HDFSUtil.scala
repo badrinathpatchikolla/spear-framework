@@ -1,21 +1,16 @@
 package com.github.edge.roman.spear.util
 
-import com.google.auth.oauth2.GoogleCredentials
-import com.google.cloud.ReadChannel
-import com.google.cloud.storage.{BlobId, BlobInfo, Storage, StorageOptions}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, LocalFileSystem, Path}
 import org.apache.hadoop.hdfs.DistributedFileSystem
 import org.apache.hadoop.io.IOUtils
 
 import java.io.{File, FileInputStream, InputStream}
-import java.nio.channels.Channels
 
 class HDFSUtil {
 
-
-  var fileSystem: FileSystem = null
-  var bucket_name: String = null
+  var fileSystem: FileSystem = _
+  var bucket_name: String = _
 
   def configureClient(configMap: Map[String, String]):Unit = {
     try {
@@ -34,16 +29,14 @@ class HDFSUtil {
   }
 
   def downloadFile(remote: String): InputStream = {
-    var stream: InputStream = null
     try {
       val path = new Path(remote)
       val exists = fileSystem.exists(path)
       if (exists)
-        stream = fileSystem.open(path)
+        fileSystem.open(path)
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => throw new Exception(exception)
     }
-    stream
   }
 
   def uploadFile(remote: String, file: File):Unit = {

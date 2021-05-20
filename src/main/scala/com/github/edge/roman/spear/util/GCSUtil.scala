@@ -9,8 +9,8 @@ import java.nio.channels.Channels
 
 class GCSUtil {
 
-  var storage: Storage = null
-  var bucket_name: String = null
+  var storage: Storage = _
+  var bucket_name: String = _
 
   def configureClient(configMap: Map[String, String]): Unit = {
     try {
@@ -22,19 +22,17 @@ class GCSUtil {
         .setCredentials(GoogleCredentials.fromStream(
           new FileInputStream(gcsAuthKeyPath))).build().getService
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
   def downloadFile(remote: String): InputStream = {
-    var stream: InputStream = null
     try {
       val reader: ReadChannel = storage.reader(bucket_name, remote)
-      stream = Channels.newInputStream(reader)
+      Channels.newInputStream(reader)
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => throw new Exception(exception)
     }
-    stream
   }
 
   def uploadFile(remote: String, file: File): Unit = {
@@ -43,7 +41,7 @@ class GCSUtil {
       val storage = StorageOptions.getDefaultInstance.getService
       storage.createFrom(BlobInfo.newBuilder(blobId).build(), new FileInputStream(file))
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
@@ -54,7 +52,7 @@ class GCSUtil {
       val storage = StorageOptions.getDefaultInstance.getService
       storage.createFrom(BlobInfo.newBuilder(blobId).build(), fileStream)
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
@@ -64,7 +62,7 @@ class GCSUtil {
       val blobId = BlobId.of(bucket_name, remote)
       size = storage.get(blobId).getSize()
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
     size
   }

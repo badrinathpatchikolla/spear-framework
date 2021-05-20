@@ -9,10 +9,10 @@ import java.util
 
 class S3Util {
 
-  var amazonS3Client: AmazonS3 = null
-  var bucket_name: String = null
+  var amazonS3Client: AmazonS3 = _
+  var bucket_name: String = _
 
-  def configureClient(configMap: Map[String, String]):Unit = {
+  def configureClient(configMap: Map[String, String]): Unit = {
     try {
       bucket_name = configMap("bucket_name")
       val accessKey: String = configMap("access_key")
@@ -21,22 +21,20 @@ class S3Util {
       val awsCredentials = new BasicAWSCredentials(accessKey, secretAccessKey)
       amazonS3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCredentials)).withRegion(region).build()
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
   def downloadFile(remote: String): InputStream = {
-    var stream: InputStream = null
     try {
       val s3Object: S3Object = amazonS3Client.getObject(bucket_name, remote)
-      stream = s3Object.getObjectContent
+      s3Object.getObjectContent
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => throw new Exception(exception)
     }
-    stream
   }
 
-  def uploadFile(remote: String, file: File):Unit = {
+  def uploadFile(remote: String, file: File): Unit = {
     try {
       amazonS3Client.putObject(bucket_name, remote, file)
     } catch {
@@ -45,13 +43,13 @@ class S3Util {
   }
 
 
-  def uploadFile(remote: String, size: Long, fileStream: InputStream):Unit = {
+  def uploadFile(remote: String, size: Long, fileStream: InputStream): Unit = {
     try {
       val metadata: ObjectMetadata = new ObjectMetadata()
       metadata.setContentLength(size)
       amazonS3Client.putObject(bucket_name, remote, fileStream, metadata)
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
@@ -63,7 +61,7 @@ class S3Util {
       val summaries: util.List[S3ObjectSummary] = objects.getObjectSummaries
       size = summaries.get(0).getSize
     } catch {
-      case exception: Exception => println(exception.printStackTrace())
+      case exception: Exception => exception.printStackTrace()
     }
     size
   }
