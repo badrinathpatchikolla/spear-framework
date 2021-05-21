@@ -11,7 +11,7 @@ import java.util.Properties
 class JDBCtoFS(sourceFormat: String, destFormat: String) extends AbstractConnector with TargetFSConnector {
 
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
-    val paramsWithSchema = params + ("customSchema" -> schema.toString())
+    val paramsWithSchema = params + (SpearCommons.CustomSchema -> schema.toString())
     source(sourceObject, paramsWithSchema)
   }
 
@@ -43,7 +43,7 @@ class JDBCtoFS(sourceFormat: String, destFormat: String) extends AbstractConnect
         this.df = _df
     }
     logger.info(s"Executing source query: ${sqlText} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
-    if (this.verboseLogging)this.df.show(this.numRows, false)
+    show()
     this
   }
 
@@ -55,10 +55,7 @@ class JDBCtoFS(sourceFormat: String, destFormat: String) extends AbstractConnect
       this.df.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).saveAsTable(tableName)
     }
     logger.info(s"Write data to target path: ${destinationFilePath} with format: ${sourceFormat} and saved as table ${tableName} completed with status:${SpearCommons.SuccessStatus}")
-    if (this.verboseLogging) {
-      val targetDF = SpearConnector.spark.sql("select * from " + tableName)
-      targetDF.show(this.numRows, false)
-    }
+    show()
   }
 
   override def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit = {

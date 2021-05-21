@@ -25,7 +25,7 @@ class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends AbstractConne
         this.df = df
     }
     logger.info(s"Reading source table: ${tableName} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
-    if (this.verboseLogging)this.df.show(this.numRows, false)
+    show()
     this
   }
 
@@ -44,7 +44,7 @@ class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends AbstractConne
         this.df = _df
     }
     logger.info(s"Executing source query: ${sqlText} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
-    if (this.verboseLogging)this.df.show(this.numRows, false)
+    show()
     this
   }
 
@@ -64,7 +64,7 @@ class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends AbstractConne
         this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
     }
     logger.info(s"Write data to table/object ${tableName} completed with status:${SpearCommons.SuccessStatus} ")
-    if (this.verboseLogging) this.df.show(this.numRows, false)
+    show()
   }
 
 

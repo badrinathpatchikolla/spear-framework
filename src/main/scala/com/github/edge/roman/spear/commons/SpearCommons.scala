@@ -20,4 +20,6 @@ object SpearCommons {
   val ADLS="adls"
   val HDFS="hdfs"
   val LOCAL="local"
+  val Username="username"
+  val Password="password"
 }

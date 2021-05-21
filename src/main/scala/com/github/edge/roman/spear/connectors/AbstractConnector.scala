@@ -46,7 +46,9 @@ abstract class AbstractConnector extends Connector {
   override def transformSql(sqlText: String): Connector = {
     this.df = this.df.sqlContext.sql(sqlText)
     logger.info(s"Executing tranformation sql: ${sqlText} status :${SpearCommons.SuccessStatus}")
-    if (this.verboseLogging) this.df.show(numRows, false)
+    show()
     this
   }
+
+  def show():Unit= if (this.verboseLogging) this.df.show(this.numRows, false)
 }
