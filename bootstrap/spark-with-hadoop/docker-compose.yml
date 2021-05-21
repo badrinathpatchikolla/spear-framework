@@ -30,14 +30,14 @@ services:
     depends_on:
       - zookeeper
   hive-metastore:
-    image: "hive-metastore:latest"
+    image: "spearframework/hive-metastore:1.0"
     restart: always
     container_name: "hive_metastore"
     hostname: "metastore.hive"
     environment:
       - POSTGRES_PASSWORD=hive
   spear-container:
-    image: "spark-standalone-hadoop:latest"
+    image: "spearframework/spark-hadoop-hive:1.0"
     hostname: "hadoop.spark"
     container_name: "spark"
     restart: always
