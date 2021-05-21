@@ -45,12 +45,12 @@ class FiletoJDBC(sourceFormat: String, destFormat: String)  extends AbstractConn
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
     destFormat match {
       case "soql" =>
-        this.df.write.format(SpearCommons.SalesForceFormat)
+        this.df.write.format(SpearCommons.SalesforceFormat)
           .option("username", props.get("username").toString)
           .option("password", props.get("password").toString)
           .option("sfObject", tableName).save()
       case "saql" =>
-        this.df.write.format(SpearCommons.SalesForceFormat)
+        this.df.write.format(SpearCommons.SalesforceFormat)
           .option("username", props.get("username").toString)
           .option("password", props.get("password").toString)
           .option("datasetName", tableName).save()
