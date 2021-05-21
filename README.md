@@ -13,7 +13,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 
 - [Introduction](#introduction)
 - [Pre-Requisites](#pre-requisites)
-- [How to Run](#how-to-run)
+- [Exploring Spear](#exploring-spear)
 - [Connectors](#connectors)
     * [Target JDBC](#target-jdbc)
         - [File Source](#file-source)
@@ -92,13 +92,13 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 ```
 
-## How to Run
+## Exploring Spear
 
 Below are the steps to write and run your own connector:
 
 1. Clone the repository from git and navigate to project directory
 ```commandline
-git clone https://github.com/AnudeepKonaboina/spear-framework.git && cd /opt/spear-framework
+git clone https://github.com/AnudeepKonaboina/spear-framework.git && cd spear-framework
 ```
 
 2. Run setup.sh script using the command
@@ -106,12 +106,12 @@ git clone https://github.com/AnudeepKonaboina/spear-framework.git && cd /opt/spe
 sh setup.sh
 ```
 
-3. Once the setup is completed run the below command for starting spear-framework on spark:
+3. Once the setup is completed run the below commands for starting spear-framework on spark:
 ```commandline
-Enter into spark-conatiner using the comamnd:
-docker exec -it spark bash
+->Enter into spark-conatiner using the comamnd:
+user@node~$docker exec -it spark bash
 
-Run `spear-shell` to start the shell:
+->Run `spear-shell` to start the shell:
 root@hadoop # spear-shell
 ```
 
@@ -121,7 +121,8 @@ and write it to HDFS.
 5. To run on any on any terminal or linux machine
 
 ```
-1. clone the project using git clone https://github.com/AnudeepKonaboina/spear-framework.git
+1. clone the project using 
+git clone https://github.com/AnudeepKonaboina/spear-framework.git && cd spear-framework
 
 2. Run cd spear-framework/ and then run sbt pcakage 
 
@@ -129,7 +130,7 @@ and write it to HDFS.
 spark-shell --jars spear-framework_2.12-0.1.jar --packages "org.postgresql:postgresql:9.4.1211,org.apache.spark:spark-hive_2.11:2.4.0"
 
 ```
-6. You can write your own connector easily(look at some examplew below).
+6. Start writing your own single line connectors and explore .To understand how to write a connector [click here](#how-to-write-a-connector)
 
 
 ## Connectors
