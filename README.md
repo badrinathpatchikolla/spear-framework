@@ -12,8 +12,9 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 ## Table of Contents
 - [Introduction](#introduction)
 - [Pre-Requisites](#pre-requisites)
-- [Exploring Spear](#exploring-spear)
-- [Connectors](#connectors)
+- [Getting started with Spear](#getting-started-with-spear)
+- [Build your first connector](#build-your-first-connector)
+- [Example Connectors](#example-connectors)
     * [Target JDBC](#target-jdbc)
         - [File Source](#file-source)
             + [CSV to JDBC Connector](#csv-to-jdbc-connector)
@@ -32,11 +33,10 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
             + [Oracle to Hive Connector](#oracle-to-hive-connector)
             + [Salesforce to Hive Connector](#salesforce-to-hive-connector)
         - [Streaming Source](#streaming-source)
-            + [kafka to FS Connector](#kafka-to-hive-connector)
+            + [kafka to Hive Connector](#kafka-to-hive-connector)
     * [Target FS (Cloud)](#target-fs-cloud)
-        + [Postgres to S3 Connector](#jdbc-to-s3-connector)
-        + [Oracle to GCS Connector](#oracle-to-gcs-connector)
-- [How to write a connector](#how-to-write-a-connector)
+        + [Oracle to S3 Connector](#oracle-to-s3-connector)
+        + [Postgres to GCS Connector](#postgres-to-gcs-connector)
 - [Contributions and License](#contributions-and-license)
 
 ## Introduction
@@ -46,14 +46,13 @@ Spear Framework is basically used to write connectors (ETL jobs) from a source t
 ![image](https://user-images.githubusercontent.com/59328701/118606240-cf12d600-b7d4-11eb-9d9f-c308b3ef286c.png)
 
 ## Pre-Requisites
-
-Following are the pre-requisite tools to be installed on the machine:
+Following are the pre-requisites you need for playing around with spear:
 
 1. Need to have a linux machine with 16GB Ram and 4 CPU's for better performance
 2. Install docker and docker-compose using the below steps
 ```commandline
-#install docker centos
-=====================
+#To install docker on centos:
+============================
 sudo yum remove docker \
                   docker-client \
                   docker-client-latest \
@@ -70,28 +69,28 @@ sudo yum-config-manager \
 sudo yum install docker-ce docker-ce-cli containerd.io
 sudo systemctl start docker
 
-#install docker ubuntu
--=====================
+#To install docker ubuntu:
+=========================
 sudo apt-get remove docker docker-engine docker.io containerd runc
 
 sudo apt-get update
- sudo apt-get install \
+sudo apt-get install \
     apt-transport-https \
     ca-certificates \
     curl \
     gnupg \
     lsb-release
     
-sudo apt-get install docker-ce docker-ce-cli containerd.io
+sudo apt-get install docker.io
 sudo systemctl start docker
 
-#install docker-compose
+#install docker-compose:
 =======================
 sudo curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 ```
 
-## Exploring Spear
+## Getting Started with Spear
 
 Below are the steps to write and run your own connector and execute:
 
@@ -108,32 +107,76 @@ sh setup.sh
 3. Once the setup is completed run the below commands for starting spear-framework on spark:
 ```commandline
 ->Enter into spark-conatiner using the comamnd:
-user@node~$docker exec -it spark bash
+user@node~$ docker exec -it spark bash
 
 ->Run `spear-shell` to start the shell:
 root@hadoop # spear-shell
 ```
 
 **NOTE**: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source
-and write it to HDFS.
+and write it to HDFS so that it gives you complete environment to play with spear-framework.
 
-5. To run on any on any terminal or linux machine
+4. Start writing your own single line connectors and explore .To understand how to write a connector [click here](#how-to-write-a-connector)
 
+
+## Build your first connector
+Below are the steps to write any connector:
+
+1. Get the suitable connector object using Spearconnector by providing the source and destination details as shown below:
+```commandline
+import com.github.edge.roman.spear.SpearConnector
+
+val connector = SpearConnector
+  .createConnector(name="defaultconnector")//give a name to your connector(any name)
+  .source(sourceType = "relational", sourceFormat = "jdbc")//source type and format for loading data  
+  .target(targetType = "FS", targetFormat = "parquet")//target type and format for writing data to dest.
+  .getConnector 
+
+Below table shows all the supported source and destination types.
 ```
-1. clone the project using 
-git clone https://github.com/AnudeepKonaboina/spear-framework.git && cd spear-framework
-
-2. Run cd spear-framework/ and then run sbt pcakage 
-
-3. Once the jar is created in the target dir ,navigate to the target dir and run the following command:
-spark-shell --jars spear-framework_2.12-0.1.jar --packages "org.postgresql:postgresql:9.4.1211,org.apache.spark:spark-hive_2.11:2.4.0"
-
+Below are the source and destination type combinations that spear-framework supports:
+```commandline
+|source type  | dest. type    | description                                                | 
+|------------ |:-------------:|:-----------------------------------------------------------:
+| file        |  relational   |connector object with file source and database as dest.     |
+| relational  |  relational   |connector object with database source and database as dest. |
+| stream      |  relational   |connector object with stream source and database as dest.   |
+| file        |  FS           |connector object with file source and FileSystem as dest.   |
+| relational  |  FS           |connector object with database source and FileSystem as dest|
+| stream      |  FS           |connector object with stream source and FileSystem as dest. |
+| FS          |  FS           |connector object with FileS  source and FileSystem as dest. |
 ```
-6. Start writing your own single line connectors and explore .To understand how to write a connector [click here](#how-to-write-a-connector)
 
 
-## Connectors
+2. Write the connector logic using the connector object.
 
+```commandline
+connector
+   //souce object and connection profile needs to be specified
+  .source(sourceObject="can be <filename/tablename/topic/api>", <connection profile Map((key->value))>)
+  //creates a temporary table on the source data with the given alias name which can be used for further transformations
+  .saveAs("<alias temporary table name>")
+  //apply custom tranformations on the loaded source data.(optional/can be applied only if necessary)
+  .transformSql("<transformations to be applied on source data>")
+  //target details where you want to load the data.
+  .targetFS(destinationFilePath = "<hdfs /s3/gcs file path>", saveAsTable = "<tablename>", <Savemode can be overwrite/append/ignore>)
+```
+
+3. On completion stop the connector.
+
+```commandline
+//stops the connector object
+connector.stop()
+```
+
+4. Enable verbose logging 
+To get the output df at each stage in your connector you can explicitly enable verbose logging as below on top of connector object.
+
+```commandline
+connector.setVeboseLogging(true) //default value is false.
+```
+
+## Example Connectors
 Connector is basically the logic/code which allows you to create a pipeline from source to target using the spear framework using which you can ingest data from any source to any destination.
 
 ### Target JDBC
@@ -142,9 +185,9 @@ Spear framework supports writing data to any RDBMS with jdbc as destination(post
 ### File source
 
 #### CSV to JDBC Connector
+An example connector for reading csv file applying transformations and storing it into postgres table using spear:\
 
-Connector for reading csv file applying transformations and storing it into postgres table using spear:\
-The input data is available in the data/us-election-2012-results-by-county.csv
+The input data is available in the data/us-election-2012-results-by-county.csv. Simply copy the below connector and paste it in your interactive shell and see your data being moved to a table in postgres with such minimal code !!!.
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -158,14 +201,14 @@ val properties = new Properties()
   properties.put("password", "mysecretpassword")
   properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
 
-
+//create a connector object
 val csvJdbcConnector = SpearConnector
     .createConnector(name="CSVtoPostgresConnector")
     .source(sourceType = "file", sourceFormat = "csv")
     .target(targetType = "relational", targetFormat = "jdbc")
     .getConnector
     
-//enable verbose logging i.e.., the output after every stage is displayed
+//enable verbose logging i.e.., the output after every stage is displayed in the console
 csvJdbcConnector.setVeboseLogging(true)
 
 //connector logic
@@ -1039,7 +1082,7 @@ Spark cannot read a salesforce object directly if specified,You must always use 
 
 ### Streaming source
 
-#### Kafka to FS Connector
+#### Kafka to Hive Connector
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -1071,7 +1114,7 @@ streamTOHdfs.stop()
 
 ### Target FS (Cloud)
 
-#### JDBC To S3 Connector
+#### Oracle To S3 Connector
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -1175,59 +1218,37 @@ user@node:~$ aws s3 ls s3://destination/data
 2021-05-08 12:09:59       4224 part-00000-71fad52e-404d-422c-a6af-7889691bc506-c000.snappy.parquet
 
 ```
-### How to write a Connector
-Below are the steps to write any connector logic:
 
-1. Get the suitable connector object using Spearconnector by providing the source and destination details as shown below:
-```commandline
-val connector = SpearConnector
-  .createConnector(name="defaultconnector")//name of the connector(any name)
-  .source(sourceType = "relational", sourceFormat = "jdbc")//source type and format for loading data
-  .target(targetType = "FS", targetFormat = "parquet")//target type and format for writing data to dest.
-  .getConnector 
+#### Postgres To GCS Connector
+
+```scala
+
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.SaveMode
+
+spark.sparkContext.hadoopConfiguration.set("fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem")
+spark.sparkContext.hadoopConfiguration.set("fs.AbstractFileSystem.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS")
+spark.sparkContext.hadoopConfiguration.set("google.cloud.auth.service.account.json.keyfile","*********")
+
+Logger.getLogger("com.github").setLevel(Level.INFO)
+ val postgresToGCSConnector = SpearConnector
+    .createConnector("PostgresToGCSConnector")
+    .source(sourceType = "relational", sourceFormat = "jdbc")
+    .target(targetType = "FS", targetFormat = "parquet")
+    .getConnector
+postgresToGCSConnector.setVeboseLogging(true)
+postgresToGCSConnector
+    .source("mytable", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres:5432/pgdb"))
+    .saveAs("__tmp__")
+    .transformSql(
+      """
+        |select *
+        |from __tmp__""".stripMargin)
+    .targetFS(destinationFilePath = "gs://testbucketspear/ora_data", SaveMode.Overwrite)
+
+postgresToGCSConnector.stop()
 ```
-Below are the source and destination type combinations that spear-framework supports:
-```commandline
-|source type  | dest. type    | description                                                | 
-|------------ |:-------------:|:-----------------------------------------------------------:
-| file        |  relational   |connector object with file source and database as dest.     |
-| relational  |  relational   |connector object with database source and database as dest. |
-| stream      |  relational   |connector object with stream source and database as dest.   |
-| file        |  FS           |connector object with file source and FileSystem as dest.   |
-| relational  |  FS           |connector object with database source and FileSystem as dest|
-| stream      |  FS           |connector object with stream source and FileSystem as dest. |
-| FS          |  FS           |connector object with FileS  source and FileSystem as dest. |
-```
-
-
-2. Write the connector logic using the connector object.
-
-```commandline
-connector
-   //souce object and connection profile needs to be specified
-  .source(sourceObject="can be <filename/tablename/topic/api>", <connection profile Map((key->value))>)
-  // creates a temporary table on source data with the given alias name which cane be used for further transormations
-  .saveAs("<alias temporary table name>")
-  //apply custom tranformations on the loaded source data.(optional/can be applied only if necessary)
-  .transformSql(<transformations to be applied on source data>)
-  //target details where you want to load the data.
-  .targetFS(destinationFilePath = "<hdfs /s3/gcs file path>", saveAsTable = "<tablename>", <Savemode can be overwrite/append/ignore>)
-```
-
-3. On completion stop the connector.
-
-```commandline
-//stops the connector object
-connector.stop()
-```
-
-4. Enable verbose logging 
-To get the output df at each stage of your connector you can explicitly enable verbose logging as below on top of connector object.
-
-```commandline
-connector.setVeboseLogging(true) //default value is false.
-```
-
 
 ## Contributions and License
 #### License
