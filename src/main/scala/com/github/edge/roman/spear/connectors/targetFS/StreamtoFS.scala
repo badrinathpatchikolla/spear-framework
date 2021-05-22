@@ -1,18 +1,16 @@
 package com.github.edge.roman.spear.connectors.targetFS
 
 import com.github.edge.roman.spear.{Connector, SpearConnector}
-import com.github.edge.roman.spear.connectors.{AbstractConnector, TargetFSConnector}
-import org.apache.spark.sql.functions.from_json
+import com.github.edge.roman.spear.connectors.AbstractTargetFSConnector
+import org.apache.spark.sql.functions.{date_format, from_json}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
+import SpearConnector.spark.implicits._
 
-import java.util.Properties
-
-class StreamtoFS(sourceFormat: String, destFormat: String)  extends AbstractConnector with TargetFSConnector  {
-
-  import SpearConnector.spark.implicits._
+class StreamtoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSConnector(sourceFormat, destFormat) {
 
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
+    logger.info(s"Connector to Target: FileSystem with Format: ${destFormat} from Source Stream: ${sourceObject}} started running!!")
     sourceFormat match {
       case "kafka" =>
         val _df = SpearConnector.spark
@@ -48,13 +46,6 @@ class StreamtoFS(sourceFormat: String, destFormat: String)  extends AbstractConn
     this
   }
 
-  override def transformSql(sqlText: String): Connector = {
-    val _df = this.df.sqlContext.sql(sqlText)
-    _df.show(this.numRows, false)
-    this.df = _df
-    this
-  }
-
   override def targetFS(destinationFilePath: String, tableName: String, saveMode: SaveMode): Unit = {
     this.df.writeStream
       .foreachBatch { (batchDF: DataFrame, _: Long) =>
@@ -81,6 +72,4 @@ class StreamtoFS(sourceFormat: String, destFormat: String)  extends AbstractConn
       }.start()
       .awaitTermination()
   }
-
-  override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = ???
 }

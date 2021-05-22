@@ -12,7 +12,7 @@ object SpearCommons {
   val File="file"
   val FileSystem="FS"
   val Stream="stream"
-  val SalesforceFormat="om.springml.spark.salesforce"
+  val SalesforceFormat="com.springml.spark.salesforce"
   val FTP="ftp"
   val AWS="aws"
   val SMB="smb"
