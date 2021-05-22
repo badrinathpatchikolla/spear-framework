@@ -92,7 +92,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 ## Getting Started with Spear
 
-Below are the steps to write and run your own connector and execute:
+Below are the steps to setup spear on any machine having docker and docker-compose installed:
 
 1. Clone the repository from git and navigate to project directory
 ```commandline
