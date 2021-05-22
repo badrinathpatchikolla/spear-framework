@@ -1,7 +1,7 @@
 package com.github.edge.roman.spear.connectors.targetjdbc
 
 import com.github.edge.roman.spear.{Connector, SpearConnector}
-import com.github.edge.roman.spear.connectors.{AbstractConnector, TargetJDBCConnector}
+import com.github.edge.roman.spear.connectors.AbstractTargetJDBCConnector
 import org.apache.spark.sql.functions.from_json
 import org.apache.spark.sql.{DataFrame, SaveMode}
 import org.apache.spark.sql.types.StructType
@@ -9,8 +9,10 @@ import SpearConnector.spark.implicits._
 
 import java.util.Properties
 
-class StreamtoJDBC(sourceFormat: String, destFormat: String) extends AbstractConnector with TargetJDBCConnector {
+class StreamtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTargetJDBCConnector(sourceFormat, destFormat) {
+
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
+    logger.info(s"Connector to Target: JDBC with Format: ${destFormat} from Source Stream:${sourceObject} started running!!")
     sourceFormat match {
       case "kafka" =>
         val _df = SpearConnector.spark
@@ -45,11 +47,6 @@ class StreamtoJDBC(sourceFormat: String, destFormat: String) extends AbstractCon
     this
   }
 
-  override def transformSql(sqlText: String): Connector = {
-    val _df = this.df.sqlContext.sql(sqlText)
-    this.df = _df
-    this
-  }
 
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
     this.df.writeStream
@@ -67,6 +64,5 @@ class StreamtoJDBC(sourceFormat: String, destFormat: String) extends AbstractCon
         batchDF.sqlContext.sql(sqlText)
       }.start()
       .awaitTermination()
-
   }
 }

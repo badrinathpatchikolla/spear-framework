@@ -12,7 +12,7 @@ object SpearConnector {
   val sparkConf = new SparkConf
   lazy val spark: SparkSession = SparkSession.builder().config(sparkConf).getOrCreate()
 
-  def createConnector(name: String = SpearCommons.Default): SpearConnector = {
+  def createConnector(name: String): SpearConnector = {
     sparkConf.setAppName(name)
     new SpearConnector
   }

@@ -5,6 +5,7 @@ import org.apache.spark.sql.SaveMode
 import java.util.Properties
 
 trait Connector {
+
   def source(sourceObject: String, params: Map[String, String] = Map()): Connector
 
   def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector

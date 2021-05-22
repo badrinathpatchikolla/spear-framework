@@ -1,15 +1,14 @@
 package com.github.edge.roman.spear.connectors.targetFS
 
 import com.github.edge.roman.spear.commons.SpearCommons
-import com.github.edge.roman.spear.connectors.{AbstractConnector, TargetFSConnector}
+import com.github.edge.roman.spear.connectors.AbstractTargetFSConnector
 import com.github.edge.roman.spear.util.{ADLSUtil, FTPUtil, GCSUtil, HDFSUtil, LocalFSUtil, S3Util, SMBUtil}
-import org.apache.log4j.Logger
 import org.apache.spark.sql.SaveMode
 
 import java.io.InputStream
 
 
-class FStoFS(sourceFormat: String, destFormat: String) extends AbstractConnector with TargetFSConnector {
+class FStoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSConnector(sourceFormat,destFormat) {
   private val ftpUtil: FTPUtil = new FTPUtil
   private val s3Util: S3Util = new S3Util
   private val smbUtil: SMBUtil = new SMBUtil
