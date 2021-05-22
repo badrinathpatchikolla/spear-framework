@@ -22,7 +22,7 @@ abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: Strin
       throw new Exception("Empty file path specified:" + destinationPath)
     } else {
       this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationPath).save()
-      logger.info(s"Write data to target path: ${destinationPath} with format: ${sourceFormat} completed with status:${SpearCommons.SuccessStatus}")
+      logger.info(s"Write data to target path: ${destinationPath} with format: ${destFormat} completed with status:${SpearCommons.SuccessStatus}")
     }
   }
 
