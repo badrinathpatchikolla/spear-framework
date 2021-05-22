@@ -1,8 +1,8 @@
 # Spear Framework
 
 [![Build Status](https://github.com/AnudeepKonaboina/spear-framework/workflows/spear-framework-build/badge.svg)](https://github.com/AnudeepKonaboina/spear-framework/actions)
-[![Code Quality Score](https://www.code-inspector.com/project/22855/score/svg)](https://www.code-inspector.com/project/22855/score/svg)
 [![Code Quality Grade](https://www.code-inspector.com/project/22855/status/svg)](https://www.code-inspector.com/project/22855/status/svg)
+[![Code Quality Score](https://www.code-inspector.com/project/22855/score/svg)](https://www.code-inspector.com/project/22855/score/svg)
 [![GitHub tag](https://img.shields.io/github/v/release/AnudeepKonaboina/spear-framework)](https://GitHub.com/AnudeepKonaboina/spear-framework/tags/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -10,7 +10,6 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 
 
 ## Table of Contents
-
 - [Introduction](#introduction)
 - [Pre-Requisites](#pre-requisites)
 - [Exploring Spear](#exploring-spear)
@@ -94,7 +93,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 ## Exploring Spear
 
-Below are the steps to write and run your own connector:
+Below are the steps to write and run your own connector and execute:
 
 1. Clone the repository from git and navigate to project directory
 ```commandline
