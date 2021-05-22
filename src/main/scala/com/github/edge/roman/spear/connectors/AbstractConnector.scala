@@ -52,6 +52,7 @@ abstract class AbstractConnector(sourceFormat: String, destFormat: String) exten
   }
 
   override def sourceSql(params: Map[String, String], sqlText: String): Connector = {
+    logger.info(s"Connector from Source sql: ${sqlText} with Format: ${sourceFormat} started running!!")
     this.df= ConnectorCommon.sourceSQL(sqlText,sourceFormat,params)
     logger.info(s"Executing source sql query: ${sqlText} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
     show()
