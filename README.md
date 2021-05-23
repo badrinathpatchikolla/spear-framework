@@ -5,6 +5,7 @@
 [![Code Quality Score](https://www.code-inspector.com/project/22855/score/svg)](https://www.code-inspector.com/project/22855/score/svg)
 [![GitHub tag](https://img.shields.io/github/v/release/AnudeepKonaboina/spear-framework)](https://GitHub.com/AnudeepKonaboina/spear-framework/tags/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://anudeepkonaboina.github.io/spear-framework/)
 
 The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
@@ -32,6 +33,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
     * [Target FS (Cloud)](#target-fs-cloud)
         + [Oracle to S3 Connector](#oracle-to-s3-connector)
 - [Contributions and License](#contributions-and-license)
+- [Explore more](#explore-more)
 
 ## Introduction
 
@@ -869,6 +871,7 @@ Anudeep Konaboina <krantianudeep@gmail.com>
 #### Contributor
 Kayan Deshi <kalyan.mgit@gmail.com>
 
-To view more connectors visit website [Click here](https://anudeepkonaboina.github.io/spear-framework/)
+## Explore more 
+Want to explore various connectors from different sources to targets, then visit github page [here](https://anudeepkonaboina.github.io/spear-framework/)
 
 
