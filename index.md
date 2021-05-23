@@ -1,4 +1,4 @@
-## Framework-metrics
+## Preface
 [![Build Status](https://github.com/AnudeepKonaboina/spear-framework/workflows/spear-framework-build/badge.svg)](https://github.com/AnudeepKonaboina/spear-framework/actions)
 [![Code Quality Grade](https://www.code-inspector.com/project/22855/status/svg)](https://www.code-inspector.com/project/22855/status/svg)
 [![Code Quality Score](https://www.code-inspector.com/project/22855/score/svg)](https://www.code-inspector.com/project/22855/score/svg)
@@ -119,10 +119,16 @@ and write it to HDFS so that it gives you complete environment to play with spea
 ## Connectors using Spear
 Connector is basically the logic/code which allows you to create a pipeline from source to target using the spear framework using which you can ingest data from any source to any destination.
 
+![image](https://user-images.githubusercontent.com/59328701/119258939-7afb5d80-bbe9-11eb-837f-02515cb7cf74.png)
+
+
 ### Target JDBC
 Spear framework supports writing data to any RDBMS with jdbc as destination(postgres/oracle/msql etc..)  from various sources like a file(csv/json/filesystem etc..)/database(RDBMS/cloud db etc..)/streaming(kafka/dir path etc..).Given below are examples of few connectors with JDBC as target.Below examples are written for postgresql as JDBC target,but this can be extended for any jdbc target.
 
 ### File source
+
+![image](https://user-images.githubusercontent.com/59328701/119256610-2521b800-bbdf-11eb-8a82-2fd81f48e85a.png)
+
 
 #### CSV to JDBC Connector
 An example connector for reading csv file applying transformations and storing it into postgres table using spear:\
@@ -543,6 +549,9 @@ parquetJdbcConnector.stop()
 
 ### JDBC source
 
+![image](https://user-images.githubusercontent.com/59328701/119256795-07088780-bbe0-11eb-9c25-4f37ff232703.png)
+
+
 #### Oracle to Postgres Connector
 
 ```scala
@@ -694,6 +703,9 @@ postgresSalesForce.stop()
 
 ### Streaming source
 
+![image](https://user-images.githubusercontent.com/59328701/119257031-1cca7c80-bbe1-11eb-94ff-9b135bac11b5.png)
+
+
 #### Kafka to Postgres Connector
 
 ```scala
@@ -730,6 +742,9 @@ streamTOPostgres.stop()
 ```
 
 ### Target FS (HDFS)
+
+![image](https://user-images.githubusercontent.com/59328701/119257299-433ce780-bbe2-11eb-8de0-9d0dc7bb1cdc.png)
+
 
 #### Postgres to Hive Connector
 
@@ -1021,6 +1036,9 @@ Spark cannot read a salesforce object directly if specified,You must always use 
 ```
 
 ### Streaming source
+
+![image](https://user-images.githubusercontent.com/59328701/119257185-cf9ada80-bbe1-11eb-91c6-bef2d21da739.png)
+
 
 #### Kafka to Hive Connector
 
